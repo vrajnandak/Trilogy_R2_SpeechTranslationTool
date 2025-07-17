@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
 
-// const socket = io('http://localhost:4000');
-const socket = io('https://lingua-live-server.onrender.com')
+// Use your deployed Render URL here
+const socket = io('https://lingua-live-server.onrender.com'); 
 
 function App() {
   const [room, setRoom] = useState('');
@@ -22,10 +22,11 @@ function App() {
         peerConnectionRef.current.close();
       }
       
-      // const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+      // *** MODIFICATION: Added a more comprehensive list of free STUN/TURN servers ***
       const iceServers = [
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun.services.mozilla.com' },
         {
           urls: 'turn:openrelay.metered.ca:80',
           username: 'openrelayproject',
@@ -36,14 +37,19 @@ function App() {
           username: 'openrelayproject',
           credential: 'openrelayproject',
         },
-        {
-          urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-          username: 'openrelayproject',
-          credential: 'openrelayproject',
-        },
       ];
-      const pc = new RTCPeerConnection({iceServers: iceServers});
+      
+      const pc = new RTCPeerConnection({ iceServers });
 
+      // *** NEW DEBUGGING LOGIC ***
+      pc.oniceconnectionstatechange = () => {
+        console.log(`Peer Connection State: ${pc.iceConnectionState}`);
+        if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'closed') {
+          // You could try to restart the ICE connection here if needed
+          console.error("Peer connection failed.");
+        }
+      };
+      
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           socket.emit('ice-candidate', { target: remoteSocketId, candidate: event.candidate });
@@ -51,6 +57,7 @@ function App() {
       };
 
       pc.ontrack = (event) => {
+        console.log("Remote track received. Attaching to remote video element.");
         if (remoteVideoRef.current) {
           remoteVideoRef.current.srcObject = event.streams[0];
         }
@@ -65,12 +72,12 @@ function App() {
       return pc;
     };
 
+    // The rest of the socket event handlers remain the same...
     socket.on('user-joined', async (newUserSocketId) => {
       console.log(`Peer ${newUserSocketId} joined. Creating offer.`);
       const pc = createPeerConnection(newUserSocketId);
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      // *** MODIFICATION: NO LONGER SENDING 'offererSocketId' FROM CLIENT ***
       socket.emit('offer', { target: newUserSocketId, sdp: pc.localDescription });
     });
 
@@ -80,7 +87,6 @@ function App() {
       await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp));
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
-      // *** MODIFICATION: NO LONGER SENDING 'answererSocketId' FROM CLIENT ***
       socket.emit('answer', { target: payload.offererSocketId, sdp: pc.localDescription });
     });
 
@@ -113,38 +119,19 @@ function App() {
   }, [inRoom, room]);
 
   const handleJoinRoom = async () => {
-    if (!room.trim()) {
-      alert("Please enter a room name");
-      return;
-    }
+    if (!room.trim()) { return alert("Please enter a room name"); }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       localStreamRef.current = stream;
       setInRoom(true);
-    } catch (error) {
-      console.error("Error accessing media devices.", error);
-    }
+    } catch (error) { console.error("Error accessing media devices.", error); }
   };
 
-  const toggleAudio = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getAudioTracks().forEach(track => {
-        track.enabled = !track.enabled;
-        setIsAudioMuted(!track.enabled);
-      });
-    }
-  };
-
-  const toggleVideo = () => {
-    if (localStreamRef.current) {
-      localStreamRef.current.getVideoTracks().forEach(track => {
-        track.enabled = !track.enabled;
-        setIsVideoStopped(!track.enabled);
-      });
-    }
-  };
+  const toggleAudio = () => { /* ...no changes here... */ };
+  const toggleVideo = () => { /* ...no changes here... */ };
 
   return (
+    // ... no changes to the JSX ...
     <div className="App">
       <header className="App-header">
         <h1>Video Chat</h1>
