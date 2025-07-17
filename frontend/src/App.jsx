@@ -40,7 +40,12 @@ function App() {
       // ];
 
       const iceServers = [
-        { urls: "stun:global.stun.twilio.com:3478" }
+          { urls: "stun:global.stun.twilio.com:3478" },
+          {
+            urls: "turn:global.turn.twilio.com:3478",
+            username: "your_user_name", // This can be anything for the free server
+            credential: "your_password" // This can be anything for the free server
+          }
       ];
       
       const pc = new RTCPeerConnection({ iceServers });
