@@ -2,7 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import io from 'socket.io-client';
 import './App.css';
 
-const socket = io('http://localhost:4000');
+// const socket = io('http://localhost:4000');
+const socket = io('https://lingua-live-server.onrender.com')
 
 function App() {
   const [room, setRoom] = useState('');
