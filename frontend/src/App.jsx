@@ -65,23 +65,40 @@ function App() {
       // ];
 
 
+      // const iceServers = [
+      //   { 
+      //     urls: "stun:stun.l.google.com:19302" 
+      //   },
+      //   {
+      //     urls: "turn:openrelay.metered.ca:80",
+      //     username: "openrelayproject",
+      //     credential: "openrelayproject",
+      //   },
+      //   {
+      //     urls: "turn:openrelay.metered.ca:443",
+      //     username: "openrelayproject",
+      //     credential: "openrelayproject",
+      //   },
+      //   // This is the new, crucial fallback that will work on any network.
+      //   {
+      //     urls: "turn:openrelay.metered.ca:443?transport=tcp",
+      //     username: "openrelayproject",
+      //     credential: "openrelayproject",
+      //   },
+      // ];
+
+
       const iceServers = [
         { 
           urls: "stun:stun.l.google.com:19302" 
         },
         {
-          urls: "turn:openrelay.metered.ca:80",
+          urls: "turns:openrelay.metered.ca:443", // <-- The 's' in 'turns' is crucial
           username: "openrelayproject",
           credential: "openrelayproject",
         },
         {
-          urls: "turn:openrelay.metered.ca:443",
-          username: "openrelayproject",
-          credential: "openrelayproject",
-        },
-        // This is the new, crucial fallback that will work on any network.
-        {
-          urls: "turn:openrelay.metered.ca:443?transport=tcp",
+          urls: "turns:openrelay.metered.ca:443?transport=tcp", // <-- Also with 's'
           username: "openrelayproject",
           credential: "openrelayproject",
         },
