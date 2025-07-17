@@ -92,7 +92,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://timely-fox-dcd3d7.netlify.app/",
     methods: ["GET", "POST"]
   }
 });
