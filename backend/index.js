@@ -5,6 +5,8 @@ const cors = require('cors');
 // const { Translate } = require('@google-cloud/translate').v2;
 // const translate = new Translate({ key: process.env.GOOGLE_API_KEY });
 const { TranslationServiceClient } = require('@google-cloud/translate');
+const projectId = 'nth-skyline-466312-q2';
+const location = 'global';
 const translationClient = new TranslationServiceClient();
 
 const app = express();
