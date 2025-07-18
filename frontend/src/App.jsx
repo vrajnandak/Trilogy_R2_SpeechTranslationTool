@@ -277,135 +277,45 @@
 
 
 
+
+
 // frontend/src/App.jsx
-import React, { useState, useEffect, useRef } from 'react';
-import AgoraUIKit from 'agora-react-uikit';
-import io from 'socket.io-client';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Lobby from './pages/Lobby';
+import VideoCall from './pages/VideoCall';
 import './App.css';
 
-// --- Re-add Socket.IO and Speech Recognition ---
-const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com'; // <-- REPLACE with your actual Render URL
-const socket = io(backendUrl);
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
 function App() {
-  const [inRoom, setInRoom] = useState(false);
-  const [channel, setChannel] = useState('');
-  const [token, setToken] = useState(null);
-  // --- Re-add state for translation ---
+  const [room, setRoom] = useState('');
   const [myLanguage, setMyLanguage] = useState('en-US');
   const [peerLanguage, setPeerLanguage] = useState('es');
 
-  const appID = '727d7f73388c4d24a74e21d3151c87f6'; // <-- REPLACE with your actual Agora App ID
-
-  const handleJoin = async (e) => {
-    e.preventDefault();
-    if (channel.trim()) {
-      try {
-        const response = await fetch(`${backendUrl}/get_token?channelName=${channel}`);
-        const data = await response.json();
-        setToken(data.token);
-        setInRoom(true);
-      } catch (error) { console.error("Failed to fetch token", error); }
-    }
-  };
-
   return (
     <div className="App">
-      {inRoom ? (
-        <VideoCall
-          appID={appID}
-          channel={channel}
-          token={token}
-          myLanguage={myLanguage}
-          peerLanguage={peerLanguage}
-          onLeave={() => {
-            setInRoom(false);
-            setToken(null);
-            setChannel('');
-          }}
-        />
-      ) : (
-        <Lobby
-          channel={channel}
-          setChannel={setChannel}
-          myLanguage={myLanguage}
-          setMyLanguage={setMyLanguage}
-          peerLanguage={peerLanguage}
-          setPeerLanguage={setPeerLanguage}
-          handleJoin={handleJoin}
-        />
-      )}
+      <Router>
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <Lobby 
+                room={room} 
+                setRoom={setRoom} 
+                myLanguage={myLanguage}
+                setMyLanguage={setMyLanguage}
+                peerLanguage={peerLanguage}
+                setPeerLanguage={setPeerLanguage}
+              />
+            } 
+          />
+          <Route 
+            path="/room/:roomCode" 
+            element={<VideoCall myLanguage={myLanguage} peerLanguage={peerLanguage} />} 
+          />
+        </Routes>
+      </Router>
     </div>
   );
 }
-
-// --- LOBBY COMPONENT ---
-const Lobby = ({ channel, setChannel, myLanguage, setMyLanguage, peerLanguage, setPeerLanguage, handleJoin }) => (
-  <header className="App-header">
-    <h1>Video & Translation Chat</h1>
-    <form onSubmit={handleJoin} className="join-room-container">
-      <input type="text" placeholder="Enter Room Name" value={channel} onChange={(e) => setChannel(e.target.value)} required />
-      <div className="language-selects">
-        <div>
-          <label>I will speak in:</label>
-          <select value={myLanguage} onChange={(e) => setMyLanguage(e.target.value)}>
-            <option value="en-US">English</option><option value="es-ES">Español</option><option value="fr-FR">Français</option><option value="de-DE">Deutsch</option><option value="hi-IN">हिन्दी</option>
-          </select>
-        </div>
-        <div>
-          <label>Translate to:</label>
-          <select value={peerLanguage} onChange={(e) => setPeerLanguage(e.target.value)}>
-            <option value="es">Español</option><option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="hi">हिन्दी</option>
-          </select>
-        </div>
-      </div>
-      <button type="submit">Join Room</button>
-    </form>
-  </header>
-);
-
-// --- VIDEO CALL COMPONENT (Now with Chat!) ---
-const VideoCall = ({ appID, channel, token, myLanguage, peerLanguage, onLeave }) => {
-  const [messages, setMessages] = useState([]);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const recognitionRef = useRef(null);
-
-  useEffect(() => {
-    socket.emit('join-chat-room', channel);
-
-    socket.on('chat-message', (message) => {
-      const newMessage = { text: `Peer: ${message.translatedText}`, isMine: false };
-      setMessages((prev) => [...prev, newMessage]);
-    });
-
-    return () => { socket.off('chat-message'); };
-  }, [channel]);
-
-  const handleToggleTranscription = () => { /* ... same as before ... */ };
-
-  return (
-    <div className="room-container">
-      <div style={{ display: 'flex', flex: 3, height: '100vh' }}>
-        <AgoraUIKit
-          rtcProps={{ appId: appID, channel, token }}
-          callbacks={{ EndCall: onLeave }}
-        />
-      </div>
-      <div className="chat-container">
-        <div className="messages-list">
-          {messages.map((msg, index) => (
-            <div key={index} className={`message ${msg.isMine ? 'my-message' : 'peer-message'}`}>
-              <p>{msg.text}</p>
-            </div>
-          ))}
-        </div>
-        <button className="transcribe-btn" onClick={handleToggleTranscription}>
-          {isTranscribing ? 'Stop Transcription' : 'Start Transcription'}
-        </button>
-      </div>
-    </div>
-  );
-};
 
 export default App;
