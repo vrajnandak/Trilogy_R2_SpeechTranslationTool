@@ -290,6 +290,8 @@ function App() {
   const [room, setRoom] = useState('');
   const [myLanguage, setMyLanguage] = useState('en-US');
   const [peerLanguage, setPeerLanguage] = useState('es');
+  // --- LIFT STATE UP ---
+  const [token, setToken] = useState(null);
 
   return (
     <div className="App">
@@ -305,12 +307,19 @@ function App() {
                 setMyLanguage={setMyLanguage}
                 peerLanguage={peerLanguage}
                 setPeerLanguage={setPeerLanguage}
+                setToken={setToken} // Pass the setter function
               />
             } 
           />
           <Route 
             path="/room/:roomCode" 
-            element={<VideoCall myLanguage={myLanguage} peerLanguage={peerLanguage} />} 
+            element={
+              <VideoCall 
+                myLanguage={myLanguage} 
+                peerLanguage={peerLanguage} 
+                token={token} // Pass the token itself
+              />
+            } 
           />
         </Routes>
       </Router>
