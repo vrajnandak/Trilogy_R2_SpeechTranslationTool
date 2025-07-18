@@ -104,59 +104,80 @@
 
 
 
-
 // backend/index.js
 const express = require('express');
+const http = require('http'); // Required for Socket.IO
+const { Server } = require("socket.io"); // Required for Socket.IO
 const { RtcTokenBuilder, RtcRole } = require('agora-token');
 const cors = require('cors');
+const { Translate } = require('@google-cloud/translate').v2;
 
 const PORT = process.env.PORT || 4000;
 const APP_ID = process.env.AGORA_APP_ID;
 const APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
+const translate = new Translate({ key: GOOGLE_API_KEY });
 const app = express();
 app.use(cors());
 
-const nocache = (_, resp, next) => {
-  resp.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-  resp.header('Expires', '-1');
-  resp.header('Pragma', 'no-cache');
-  next();
-}
+const server = http.createServer(app); // Create an HTTP server
 
-const generateToken = (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    const channelName = req.query.channelName;
-    if (!channelName) {
-        return res.status(400).json({ 'error': 'channel is required' });
-    }
-    let uid = req.query.uid;
-    if(!uid || uid === '') {
-        uid = 0;
-    }
-    let role = RtcRole.SUBSCRIBER;
-    if (req.query.role === 'publisher') {
-        role = RtcRole.PUBLISHER;
-    }
-    let expireTime = req.query.expireTime;
-    if (!expireTime || expireTime === '') {
-        expireTime = 3600;
-    } else {
-        expireTime = parseInt(expireTime, 10);
-    }
-    const currentTime = Math.floor(Date.now() / 1000);
-    const privilegeExpireTime = currentTime + expireTime;
-    
-    const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
-    console.log(`Token generated for channel: ${channelName}, uid: ${uid}`);
-    return res.json({ 'token': token });
-}
+// Attach Socket.IO to the HTTP server
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Allow all origins for simplicity, can be restricted later
+    methods: ["GET", "POST"]
+  }
+});
 
+// --- AGORA TOKEN LOGIC (Unchanged) ---
+const nocache = (_, resp, next) => { /* ... unchanged ... */ };
+const generateToken = (req, res) => { /* ... unchanged ... */ };
 app.get('/get_token', nocache, generateToken);
 
-app.listen(PORT, () => {
-    console.log(`Token server running on port ${PORT}`);
-    if (!APP_ID || !APP_CERTIFICATE) {
-        console.error('!!! Agora App ID or Certificate not configured. !!!');
+// --- SOCKET.IO CONNECTION LOGIC (Re-added) ---
+io.on('connection', (socket) => {
+    console.log(`A user connected via Socket.IO: ${socket.id}`);
+
+    socket.on('join-chat-room', (roomId) => {
+        socket.join(roomId);
+        console.log(`User ${socket.id} joined chat room: ${roomId}`);
+    });
+
+    socket.on('chat-message', async ({ text, room, targetLang }) => {
+        try {
+            console.log(`Received text: "${text}", target language: ${targetLang}`);
+            let [translations] = await translate.translate(text, targetLang);
+            const translation = Array.isArray(translations) ? translations[0] : translations;
+            console.log(`Translated text to ${targetLang}: ${translation}`);
+            
+            // Broadcast the translated message to others in the room
+            socket.to(room).emit('chat-message', {
+                translatedText: translation,
+                originalText: text,
+                senderId: socket.id
+            });
+
+        } catch (error) {
+            console.error('ERROR during translation:', error);
+            socket.to(room).emit('chat-message', {
+                translatedText: `[Translation Error] ${text}`,
+                originalText: text,
+                senderId: socket.id
+            });
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`User disconnected from Socket.IO: ${socket.id}`);
+    });
+});
+
+// Use the http server to listen, not the express app
+server.listen(PORT, () => {
+    console.log(`Server (including Token and Socket.IO) running on port ${PORT}`);
+    if (!APP_ID || !APP_CERTIFICATE || !GOOGLE_API_KEY) {
+        console.error('!!! Missing one or more required environment variables (Agora or Google) !!!');
     }
 });

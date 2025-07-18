@@ -183,3 +183,13 @@ video {
   color: white;
   border: 1px solid #61dafb;
 }
+
+.transcribe-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  background-color: #61dafb;
+  margin-top: 10px;
+}

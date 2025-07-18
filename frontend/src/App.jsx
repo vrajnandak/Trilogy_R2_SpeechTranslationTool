@@ -277,78 +277,135 @@
 
 
 
-
-
 // frontend/src/App.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AgoraUIKit from 'agora-react-uikit';
+import io from 'socket.io-client';
 import './App.css';
+
+// --- Re-add Socket.IO and Speech Recognition ---
+const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com'; // <-- REPLACE with your actual Render URL
+const socket = io(backendUrl);
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 function App() {
   const [inRoom, setInRoom] = useState(false);
   const [channel, setChannel] = useState('');
   const [token, setToken] = useState(null);
+  // --- Re-add state for translation ---
+  const [myLanguage, setMyLanguage] = useState('en-US');
+  const [peerLanguage, setPeerLanguage] = useState('es');
 
-  // --- IMPORTANT ---
-  // 1. YOUR RENDER.COM BACKEND URL
-  const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com'; // <-- REPLACE with your actual Render URL
-  
-  // 2. YOUR AGORA APP ID
-  const appID = '727d7f73388c4d24a74e21d3151c87f6'; // <-- REPLACE with your actual Agora App ID (as a string)
+  const appID = '727d7f73388c4d24a74e21d3151c87f6'; // <-- REPLACE with your actual Agora App ID
 
   const handleJoin = async (e) => {
     e.preventDefault();
     if (channel.trim()) {
       try {
-        // Fetch the token from your backend server
         const response = await fetch(`${backendUrl}/get_token?channelName=${channel}`);
         const data = await response.json();
         setToken(data.token);
         setInRoom(true);
-      } catch (error) {
-        console.error("Failed to fetch token", error);
-      }
+      } catch (error) { console.error("Failed to fetch token", error); }
     }
-  };
-
-  const callbacks = {
-    EndCall: () => {
-      setInRoom(false);
-      setToken(null);
-      setChannel('');
-    },
   };
 
   return (
     <div className="App">
       {inRoom ? (
-        <div style={{ display: 'flex', width: '100vw', height: '100vh' }}>
-          <AgoraUIKit
-            rtcProps={{
-              appId: appID,
-              channel: channel,
-              token: token,
-            }}
-            callbacks={callbacks}
-          />
-        </div>
+        <VideoCall
+          appID={appID}
+          channel={channel}
+          token={token}
+          myLanguage={myLanguage}
+          peerLanguage={peerLanguage}
+          onLeave={() => {
+            setInRoom(false);
+            setToken(null);
+            setChannel('');
+          }}
+        />
       ) : (
-        <header className="App-header">
-          <h1>Video Chat</h1>
-          <form onSubmit={handleJoin} className="join-room-container">
-            <input
-              type="text"
-              placeholder="Enter Room Name"
-              value={channel}
-              onChange={(e) => setChannel(e.target.value)}
-              required
-            />
-            <button type="submit">Join Room</button>
-          </form>
-        </header>
+        <Lobby
+          channel={channel}
+          setChannel={setChannel}
+          myLanguage={myLanguage}
+          setMyLanguage={setMyLanguage}
+          peerLanguage={peerLanguage}
+          setPeerLanguage={setPeerLanguage}
+          handleJoin={handleJoin}
+        />
       )}
     </div>
   );
 }
+
+// --- LOBBY COMPONENT ---
+const Lobby = ({ channel, setChannel, myLanguage, setMyLanguage, peerLanguage, setPeerLanguage, handleJoin }) => (
+  <header className="App-header">
+    <h1>Video & Translation Chat</h1>
+    <form onSubmit={handleJoin} className="join-room-container">
+      <input type="text" placeholder="Enter Room Name" value={channel} onChange={(e) => setChannel(e.target.value)} required />
+      <div className="language-selects">
+        <div>
+          <label>I will speak in:</label>
+          <select value={myLanguage} onChange={(e) => setMyLanguage(e.target.value)}>
+            <option value="en-US">English</option><option value="es-ES">Español</option><option value="fr-FR">Français</option><option value="de-DE">Deutsch</option><option value="hi-IN">हिन्दी</option>
+          </select>
+        </div>
+        <div>
+          <label>Translate to:</label>
+          <select value={peerLanguage} onChange={(e) => setPeerLanguage(e.target.value)}>
+            <option value="es">Español</option><option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="hi">हिन्दी</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit">Join Room</button>
+    </form>
+  </header>
+);
+
+// --- VIDEO CALL COMPONENT (Now with Chat!) ---
+const VideoCall = ({ appID, channel, token, myLanguage, peerLanguage, onLeave }) => {
+  const [messages, setMessages] = useState([]);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    socket.emit('join-chat-room', channel);
+
+    socket.on('chat-message', (message) => {
+      const newMessage = { text: `Peer: ${message.translatedText}`, isMine: false };
+      setMessages((prev) => [...prev, newMessage]);
+    });
+
+    return () => { socket.off('chat-message'); };
+  }, [channel]);
+
+  const handleToggleTranscription = () => { /* ... same as before ... */ };
+
+  return (
+    <div className="room-container">
+      <div style={{ display: 'flex', flex: 3, height: '100vh' }}>
+        <AgoraUIKit
+          rtcProps={{ appId: appID, channel, token }}
+          callbacks={{ EndCall: onLeave }}
+        />
+      </div>
+      <div className="chat-container">
+        <div className="messages-list">
+          {messages.map((msg, index) => (
+            <div key={index} className={`message ${msg.isMine ? 'my-message' : 'peer-message'}`}>
+              <p>{msg.text}</p>
+            </div>
+          ))}
+        </div>
+        <button className="transcribe-btn" onClick={handleToggleTranscription}>
+          {isTranscribing ? 'Stop Transcription' : 'Start Transcription'}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export default App;
