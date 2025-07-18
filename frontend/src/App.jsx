@@ -81,7 +81,7 @@ function App() {
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
       }
-      
+
       const iceServers = [
         { 
           urls: "stun:stun.l.google.com:19302" 
@@ -203,10 +203,6 @@ function App() {
       <header className="App-header">
         <h1>Video Chat</h1>
         {!inRoom ? (
-          // <div className="join-room-container">
-          //   <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} />
-          //   <button onClick={handleJoinRoom}>Join Room</button>
-          // </div>
           <div className="join-room-container">
             <input
               type="text"
@@ -242,16 +238,6 @@ function App() {
             <button onClick={handleJoinRoom}>Join Room</button>
           </div>
         ) : (
-          // <div className="video-chat-container">
-          //   <div className="video-container">
-          //     <video ref={localVideoRef} autoPlay playsInline muted id="localVideo"></video>
-          //     <video ref={remoteVideoRef} autoPlay playsInline id="remoteVideo"></video>
-          //   </div>
-          //   <div className="controls">
-          //     <button onClick={toggleAudio}>{isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}</button>
-          //     <button onClick={toggleVideo}>{isVideoStopped ? 'Start Video' : 'Stop Video'}</button>
-          //   </div>
-          // </div>
           <div className="room-container">
             <div className="video-chat-container">
               <div className="video-container">

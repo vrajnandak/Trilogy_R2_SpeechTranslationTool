@@ -2,10 +2,10 @@ const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
 const cors = require('cors');
-const { Translate } = require('@google-cloud/translate').v2;
-// google_api_key = 'AIzaSyA_PgKexXaS4YJcZdXN2XY3Ftl4cgyhF7o'
-const translate = new Translate({ key: process.env.GOOGLE_API_KEY });
-// const translate = new Translate({ key: google_api_key});
+// const { Translate } = require('@google-cloud/translate').v2;
+// const translate = new Translate({ key: process.env.GOOGLE_API_KEY });
+const { TranslationServiceClient } = require('@google-cloud/translate');
+const translationClient = new TranslationServiceClient();
 
 const app = express();
 app.use(cors());
@@ -59,26 +59,44 @@ io.on('connection', (socket) => {
   socket.on('chat-message', async ({ text, room, targetLang }) => {
     // socket.to(room).emit('chat-message', { text, senderId: socket.id });
     try {
-      // 1. Detect the source language
-      let [detections] = await translate.detect(text);
-      const detection = Array.isArray(detections) ? detections[0] : detections;
-      console.log(`Detected language: ${detection.language}`);
+        console.log(`Received text: "${text}", target language: ${targetLang}`);
+        const request = {
+            parent: `projects/${projectId}/locations/${location}`,
+            contents: [text],
+            mimeType: 'text/plain',
+            targetLanguageCode: targetLang,
+        };
+        
+        const [response] = await translationClient.translateText(request);
+        const translation = response.translations[0]?.translatedText || "[Translation Error]";
+        console.log(`Translated text to ${targetLang}: ${translation}`);
+        
+        socket.to(room).emit('chat-message', {
+            originalText: text,
+            translatedText: translation,
+            senderId: socket.id
+        });
 
-      // 2. Translate the text
-      let [translations] = await translate.translate(text, targetLang);
-      const translation = Array.isArray(translations) ? translations[0] : translations;
-      console.log(`Translated text to ${targetLang}: ${translation}`);
+    //   // 1. Detect the source language
+    //   let [detections] = await translate.detect(text);
+    //   const detection = Array.isArray(detections) ? detections[0] : detections;
+    //   console.log(`Detected language: ${detection.language}`);
 
-      // 3. Broadcast the TRANSLATED text to the room
-      // We also send the original text for the sender to see
-      socket.to(room).emit('chat-message', {
-        originalText: text,
-        translatedText: translation,
-        senderId: socket.id
-      });
+    //   // 2. Translate the text
+    //   let [translations] = await translate.translate(text, targetLang);
+    //   const translation = Array.isArray(translations) ? translations[0] : translations;
+    //   console.log(`Translated text to ${targetLang}: ${translation}`);
+
+    //   // 3. Broadcast the TRANSLATED text to the room
+    //   // We also send the original text for the sender to see
+    //   socket.to(room).emit('chat-message', {
+    //     originalText: text,
+    //     translatedText: translation,
+    //     senderId: socket.id
+    //   });
     } catch (error) {
-      console.error('ERROR during translation:', error);
-      // If translation fails, maybe just send the original text
+      console.error('ERROR during v3 translation:', error);
+      // If translation fails, send the original text with an error message
       socket.to(room).emit('chat-message', {
         originalText: text,
         translatedText: `[Translation Error] ${text}`,
