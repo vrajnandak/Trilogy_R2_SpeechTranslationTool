@@ -2,6 +2,10 @@ const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
 const cors = require('cors');
+const { Translate } = require('@google-cloud/translate').v2;
+// google_api_key = 'AIzaSyA_PgKexXaS4YJcZdXN2XY3Ftl4cgyhF7o'
+const translate = new Translate({ key: process.env.GOOGLE_API_KEY });
+// const translate = new Translate({ key: google_api_key});
 
 const app = express();
 app.use(cors());
@@ -52,9 +56,35 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('chat-message', ({ text, room }) => {
-    // Broadcast the message to everyone else in the room
-    socket.to(room).emit('chat-message', { text, senderId: socket.id });
+  socket.on('chat-message', async ({ text, room, targetLang }) => {
+    // socket.to(room).emit('chat-message', { text, senderId: socket.id });
+    try {
+      // 1. Detect the source language
+      let [detections] = await translate.detect(text);
+      const detection = Array.isArray(detections) ? detections[0] : detections;
+      console.log(`Detected language: ${detection.language}`);
+
+      // 2. Translate the text
+      let [translations] = await translate.translate(text, targetLang);
+      const translation = Array.isArray(translations) ? translations[0] : translations;
+      console.log(`Translated text to ${targetLang}: ${translation}`);
+
+      // 3. Broadcast the TRANSLATED text to the room
+      // We also send the original text for the sender to see
+      socket.to(room).emit('chat-message', {
+        originalText: text,
+        translatedText: translation,
+        senderId: socket.id
+      });
+    } catch (error) {
+      console.error('ERROR during translation:', error);
+      // If translation fails, maybe just send the original text
+      socket.to(room).emit('chat-message', {
+        originalText: text,
+        translatedText: `[Translation Error] ${text}`,
+        senderId: socket.id
+      });
+    }
   });
 
   socket.on('disconnect', () => {

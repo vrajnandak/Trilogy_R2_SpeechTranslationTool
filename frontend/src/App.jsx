@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import './App.css';
 
 // Use your deployed Render URL here
-const socket = io('https://lingua-live-server.onrender.com'); 
+const socket = io('https://lingua-live-server.onrender.com');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -17,6 +17,9 @@ function App() {
   const [isTranscribing, setIsTranscribing] = useState(false);
 
   const recognitionRef =useRef(null);
+
+  const [myLanguage, setMyLanguage] = useState('en-US');
+  const [peerLanguage, setPeerLanguage] = useState('es');
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -41,19 +44,22 @@ function App() {
       const recognition = new SpeechRecognition();
       recognition.continuous = true; // Keep listening
       recognition.interimResults = false; // We only want final results
-      recognition.lang = 'en-US'; // You can change this
+      // recognition.lang = 'en-US'; // You can change this
+      recognition.lang = myLanguage;
 
       recognition.onresult = (event) => {
         const last = event.results.length - 1;
         const text = event.results[last][0].transcript.trim();
 
         if (text) {
-          const newMessage = { text, isMine: true };
+          // const newMessage = { text, isMine: true };
+          const newMessage = { text: `You: ${text}`, isMine: true };
           // Add to local messages so you can see what you said
           setMessages((prevMessages) => [...prevMessages, newMessage]);
           
           // Send the message to the server
-          socket.emit('chat-message', { text, room });
+          // socket.emit('chat-message', { text, room });
+          socket.emit('chat-message', {text, room, targetLang: peerLanguage});
         }
       };
       
@@ -76,72 +82,6 @@ function App() {
         peerConnectionRef.current.close();
       }
       
-      // *** MODIFICATION: Added a more comprehensive list of free STUN/TURN servers ***
-      // const iceServers = [
-      //   { urls: 'stun:stun.l.google.com:19302' },
-      //   { urls: 'stun:stun1.l.google.com:19302' },
-      //   { urls: 'stun:stun.services.mozilla.com' },
-      //   {
-      //     urls: 'turn:openrelay.metered.ca:80',
-      //     username: 'openrelayproject',
-      //     credential: 'openrelayproject',
-      //   },
-      //   {
-      //     urls: 'turn:openrelay.metered.ca:443',
-      //     username: 'openrelayproject',
-      //     credential: 'openrelayproject',
-      //   },
-      // ];
-
-      // const iceServers = [
-      //     { urls: "stun:global.stun.twilio.com:3478" },
-      //     {
-      //       urls: "turn:global.turn.twilio.com:3478",
-      //       username: "your_user_name", // This can be anything for the free server
-      //       credential: "your_password" // This can be anything for the free server
-      //     }
-      // ];
-
-      // const iceServers = [
-      //   { 
-      //     urls: "stun:stun.l.google.com:19302" 
-      //   },
-      //   {
-      //     urls: "turn:openrelay.metered.ca:80",
-      //     username: "openrelayproject",
-      //     credential: "openrelayproject",
-      //   },
-      //   {
-      //     urls: "turn:openrelay.metered.ca:443",
-      //     username: "openrelayproject",
-      //     credential: "openrelayproject",
-      //   },
-      // ];
-
-
-      // const iceServers = [
-      //   { 
-      //     urls: "stun:stun.l.google.com:19302" 
-      //   },
-      //   {
-      //     urls: "turn:openrelay.metered.ca:80",
-      //     username: "openrelayproject",
-      //     credential: "openrelayproject",
-      //   },
-      //   {
-      //     urls: "turn:openrelay.metered.ca:443",
-      //     username: "openrelayproject",
-      //     credential: "openrelayproject",
-      //   },
-      //   // This is the new, crucial fallback that will work on any network.
-      //   {
-      //     urls: "turn:openrelay.metered.ca:443?transport=tcp",
-      //     username: "openrelayproject",
-      //     credential: "openrelayproject",
-      //   },
-      // ];
-
-
       const iceServers = [
         { 
           urls: "stun:stun.l.google.com:19302" 
@@ -222,7 +162,8 @@ function App() {
 
     socket.on('chat-message', (message) => {
       // Create a new message object for the peer's message
-      const newMessage = { text: message.text, isMine: false };
+      // const newMessage = { text: message.text, isMine: false };
+      const newMessage = { text: `Peer: ${message.translatedText}`, isMine: false };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
@@ -233,7 +174,7 @@ function App() {
       socket.off('ice-candidate');
       socket.off('chat-message');
     };
-  }, [room]);
+  }, [room, peerLanguage]);
 
   useEffect(() => {
     if (inRoom && localStreamRef.current) {
@@ -262,8 +203,42 @@ function App() {
       <header className="App-header">
         <h1>Video Chat</h1>
         {!inRoom ? (
+          // <div className="join-room-container">
+          //   <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} />
+          //   <button onClick={handleJoinRoom}>Join Room</button>
+          // </div>
           <div className="join-room-container">
-            <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} />
+            <input
+              type="text"
+              placeholder="Enter Room Name"
+              value={room}
+              onChange={(e) => setRoom(e.target.value)}
+            />
+            {/* --- NEW LANGUAGE SELECTION --- */}
+            <div className="language-selects">
+              <div>
+                <label>I will speak in:</label>
+                <select value={myLanguage} onChange={(e) => setMyLanguage(e.target.value)}>
+                  <option value="en-US">English</option>
+                  <option value="es-ES">Español</option>
+                  <option value="fr-FR">Français</option>
+                  <option value="de-DE">Deutsch</option>
+                  <option value="hi-IN">हिन्दी</option>
+                  {/* Add more languages as needed */}
+                </select>
+              </div>
+              <div>
+                <label>Translate to:</label>
+                <select value={peerLanguage} onChange={(e) => setPeerLanguage(e.target.value)}>
+                  <option value="es">Español</option>
+                  <option value="en">English</option>
+                  <option value="fr">Français</option>
+                  <option value="de">Deutsch</option>
+                  <option value="hi">हिन्दी</option>
+                  {/* Add more languages as needed */}
+                </select>
+              </div>
+            </div>
             <button onClick={handleJoinRoom}>Join Room</button>
           </div>
         ) : (
