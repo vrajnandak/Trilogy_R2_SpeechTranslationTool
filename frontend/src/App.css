@@ -77,12 +77,12 @@
 .controls button {
     margin: 10px;
 }
-
+/* 
 .video-chat-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
+} */
 
 .video-container {
   display: flex;
@@ -97,4 +97,62 @@ video {
   max-width: 500px;
   height: auto;
   background-color: black;
+}
+
+/* Add these new styles to the end of your App.css file */
+
+.room-container {
+  display: flex;
+  width: 90vw;
+  height: 90vh;
+  gap: 20px;
+}
+
+.video-chat-container {
+  flex: 3; /* Takes up 3/4 of the space */
+  display: flex;
+  flex-direction: column;
+}
+
+.video-container {
+  flex-grow: 1;
+}
+
+.chat-container {
+  flex: 1; /* Takes up 1/4 of the space */
+  background-color: #3a3f4b;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  max-height: 100%;
+}
+
+.messages-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  padding: 8px 12px;
+  border-radius: 15px;
+  max-width: 80%;
+  word-wrap: break-word;
+}
+
+.my-message {
+  background-color: #61dafb;
+  color: #282c34;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.peer-message {
+  background-color: #4a505e;
+  color: white;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
 }

@@ -5,16 +5,70 @@ import './App.css';
 // Use your deployed Render URL here
 const socket = io('https://lingua-live-server.onrender.com'); 
 
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
 function App() {
   const [room, setRoom] = useState('');
   const [inRoom, setInRoom] = useState(false);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isVideoStopped, setIsVideoStopped] = useState(false);
 
+  const [messages, setMessages] = useState([]);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
+  const recognitionRef =useRef(null);
+
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerConnectionRef = useRef(null);
   const localStreamRef = useRef(null);
+
+
+  const handleToggleTranscription = () => {
+    if (!SpeechRecognition) {
+      alert("Sorry, your browser doesn't support speech recognition.");
+      return;
+    }
+
+    if (isTranscribing) {
+      // Stop the recognition
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsTranscribing(false);
+    } else {
+      // Start the recognition
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true; // Keep listening
+      recognition.interimResults = false; // We only want final results
+      recognition.lang = 'en-US'; // You can change this
+
+      recognition.onresult = (event) => {
+        const last = event.results.length - 1;
+        const text = event.results[last][0].transcript.trim();
+
+        if (text) {
+          const newMessage = { text, isMine: true };
+          // Add to local messages so you can see what you said
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+          
+          // Send the message to the server
+          socket.emit('chat-message', { text, room });
+        }
+      };
+      
+      // Restart recognition if it stops
+      recognition.onend = () => {
+        if (isTranscribing) {
+          recognition.start();
+        }
+      };
+
+      recognition.start();
+      recognitionRef.current = recognition;
+      setIsTranscribing(true);
+    }
+  };
 
   useEffect(() => {
     const createPeerConnection = (remoteSocketId) => {
@@ -166,13 +220,20 @@ function App() {
       }
     });
 
+    socket.on('chat-message', (message) => {
+      // Create a new message object for the peer's message
+      const newMessage = { text: message.text, isMine: false };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    });
+
     return () => {
       socket.off('user-joined');
       socket.off('offer');
       socket.off('answer');
       socket.off('ice-candidate');
+      socket.off('chat-message');
     };
-  }, []);
+  }, [room]);
 
   useEffect(() => {
     if (inRoom && localStreamRef.current) {
@@ -206,14 +267,40 @@ function App() {
             <button onClick={handleJoinRoom}>Join Room</button>
           </div>
         ) : (
-          <div className="video-chat-container">
-            <div className="video-container">
-              <video ref={localVideoRef} autoPlay playsInline muted id="localVideo"></video>
-              <video ref={remoteVideoRef} autoPlay playsInline id="remoteVideo"></video>
+          // <div className="video-chat-container">
+          //   <div className="video-container">
+          //     <video ref={localVideoRef} autoPlay playsInline muted id="localVideo"></video>
+          //     <video ref={remoteVideoRef} autoPlay playsInline id="remoteVideo"></video>
+          //   </div>
+          //   <div className="controls">
+          //     <button onClick={toggleAudio}>{isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}</button>
+          //     <button onClick={toggleVideo}>{isVideoStopped ? 'Start Video' : 'Stop Video'}</button>
+          //   </div>
+          // </div>
+          <div className="room-container">
+            <div className="video-chat-container">
+              <div className="video-container">
+                <video ref={localVideoRef} autoPlay playsInline muted id="localVideo"></video>
+                <video ref={remoteVideoRef} autoPlay playsInline id="remoteVideo"></video>
+              </div>
+              <div className="controls">
+                <button onClick={toggleAudio}>{isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}</button>
+                <button onClick={toggleVideo}>{isVideoStopped ? 'Start Video' : 'Stop Video'}</button>
+                {/* --- NEW BUTTON --- */}
+                <button onClick={handleToggleTranscription}>
+                  {isTranscribing ? 'Stop Transcription' : 'Start Transcription'}
+                </button>
+              </div>
             </div>
-            <div className="controls">
-              <button onClick={toggleAudio}>{isAudioMuted ? 'Unmute Audio' : 'Mute Audio'}</button>
-              <button onClick={toggleVideo}>{isVideoStopped ? 'Start Video' : 'Stop Video'}</button>
+            {/* --- NEW CHAT CONTAINER --- */}
+            <div className="chat-container">
+              <div className="messages-list">
+                {messages.map((msg, index) => (
+                  <div key={index} className={`message ${msg.isMine ? 'my-message' : 'peer-message'}`}>
+                    <p>{msg.text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
