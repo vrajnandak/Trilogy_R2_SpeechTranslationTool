@@ -3,7 +3,8 @@ import io from 'socket.io-client';
 import './App.css';
 
 // Use your deployed Render URL here
-const socket = io('https://lingua-live-server.onrender.com');
+const socket_url = process.env.ENDPOINT_URL || 'https://trilogy-r2-speechtranslationtool.onrender.com';
+const socket = io(socket_url);
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 

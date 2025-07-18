@@ -14,9 +14,11 @@ app.use(cors());
 
 const server = http.createServer(app);
 
+const origin_url = process.env.ORIGIN_URL || "https://timely-fox-dcd3d7.netlify.app";
+
 const io = new Server(server, {
   cors: {
-    origin: "https://timely-fox-dcd3d7.netlify.app",
+    origin: origin_url,
     methods: ["GET", "POST"]
   }
 });
@@ -59,7 +61,6 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chat-message', async ({ text, room, targetLang }) => {
-    // socket.to(room).emit('chat-message', { text, senderId: socket.id });
     try {
         console.log(`Received text: "${text}", target language: ${targetLang}`);
         const request = {
@@ -68,8 +69,9 @@ io.on('connection', (socket) => {
             mimeType: 'text/plain',
             targetLanguageCode: targetLang,
         };
-        
+        console.log('request has been made:', request);
         const [response] = await translationClient.translateText(request);
+        console.log('response: ', response);
         const translation = response.translations[0]?.translatedText || "[Translation Error]";
         console.log(`Translated text to ${targetLang}: ${translation}`);
         
@@ -78,24 +80,7 @@ io.on('connection', (socket) => {
             translatedText: translation,
             senderId: socket.id
         });
-
-    //   // 1. Detect the source language
-    //   let [detections] = await translate.detect(text);
-    //   const detection = Array.isArray(detections) ? detections[0] : detections;
-    //   console.log(`Detected language: ${detection.language}`);
-
-    //   // 2. Translate the text
-    //   let [translations] = await translate.translate(text, targetLang);
-    //   const translation = Array.isArray(translations) ? translations[0] : translations;
-    //   console.log(`Translated text to ${targetLang}: ${translation}`);
-
-    //   // 3. Broadcast the TRANSLATED text to the room
-    //   // We also send the original text for the sender to see
-    //   socket.to(room).emit('chat-message', {
-    //     originalText: text,
-    //     translatedText: translation,
-    //     senderId: socket.id
-    //   });
+        
     } catch (error) {
       console.error('ERROR during v3 translation:', error);
       // If translation fails, send the original text with an error message
