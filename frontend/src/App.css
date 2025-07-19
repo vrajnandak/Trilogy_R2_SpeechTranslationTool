@@ -1,195 +1,221 @@
-/* #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-} */
-
-
-.App {
-  text-align: center;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.join-room-container input {
-  padding: 10px;
-  font-size: 16px;
-  margin-right: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.join-room-container button, .controls button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 5px;
-  border: none;
-  background-color: #61dafb;
-}
-
-.controls button {
-    margin: 10px;
-}
-/* 
-.video-chat-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-} */
-
-.video-container {
+.app-container {
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
+  align-items: center;
 }
 
-video {
-  border: 2px solid #61dafb;
-  width: 40vw;
+/* --- Lobby Styles --- */
+.lobby-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.lobby-card {
+  background-color: var(--container-dark);
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  width: 100%;
   max-width: 500px;
-  height: auto;
-  background-color: black;
+  text-align: center;
 }
 
-/* Add these new styles to the end of your App.css file */
-
-.room-container {
-  display: flex;
-  width: 90vw;
-  height: 90vh;
-  gap: 20px;
+.lobby-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-light);
 }
 
-.video-chat-container {
-  flex: 3; /* Takes up 3/4 of the space */
-  display: flex;
-  flex-direction: column;
+.lobby-subtitle {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 30px;
 }
 
-.video-container {
-  flex-grow: 1;
+.lobby-form .form-group {
+  margin-bottom: 20px;
+  text-align: left;
 }
 
-.chat-container {
-  flex: 1; /* Takes up 1/4 of the space */
-  background-color: #3a3f4b;
+.lobby-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.lobby-form input,
+.lobby-form select {
+  width: 100%;
+  padding: 12px;
   border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  max-height: 100%;
-}
-
-.messages-list {
-  flex-grow: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.message {
-  padding: 8px 12px;
-  border-radius: 15px;
-  max-width: 80%;
-  word-wrap: break-word;
-}
-
-.my-message {
-  background-color: #61dafb;
-  color: #282c34;
-  align-self: flex-end;
-  border-bottom-right-radius: 4px;
-}
-
-.peer-message {
-  background-color: #4a505e;
-  color: white;
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  font-size: 1rem;
+  font-family: var(--font-family);
 }
 
 .language-selects {
   display: flex;
   gap: 20px;
-  margin: 15px 0;
-  align-items: center;
-  justify-content: center;
+  margin-bottom: 20px;
 }
 
-.language-selects div {
+.language-selects .form-group {
+  flex: 1;
+}
+
+.join-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-blue);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.join-btn:hover {
+  background-color: var(--primary-blue-hover);
+}
+
+.join-btn:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: var(--danger-red);
+  font-size: 0.9rem;
+  margin-top: 15px;
+}
+
+/* --- Video Call Styles --- */
+.call-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+}
+
+.video-container {
+  flex: 1;
+  display: flex;
+  position: relative; /* Important for Agora UI Kit */
+}
+
+.translation-sidebar {
+  width: 350px;
+  background-color: var(--sidebar-dark);
+  border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  height: 100%;
 }
 
-.language-selects label {
-  font-size: 14px;
-  margin-bottom: 5px;
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
 }
 
-.language-selects select {
-  padding: 8px;
-  border-radius: 5px;
-  background-color: #3a3f4b;
+.sidebar-header h3 {
+  font-weight: 600;
+}
+
+.messages-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message-bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  max-width: 90%;
+  word-wrap: break-word;
+}
+
+.my-message {
+  background-color: var(--my-message-bg);
   color: white;
-  border: 1px solid #61dafb;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.peer-message {
+  background-color: var(--peer-message-bg);
+  color: var(--text-light);
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.message-text {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.original-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 5px;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
 }
 
 .transcribe-btn {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 5px;
+  width: 100%;
+  padding: 12px;
   border: none;
-  background-color: #61dafb;
-  margin-top: 10px;
+  border-radius: 8px;
+  background-color: var(--primary-blue);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.transcribe-btn.active {
+  background-color: var(--danger-red);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .call-container {
+    flex-direction: column;
+  }
+  .translation-sidebar {
+    width: 100%;
+    height: 40vh; /* Take 40% of the screen height */
+    border-left: none;
+    border-top: 1px solid var(--border-color);
+  }
+  .lobby-card {
+    padding: 20px;
+    border: none;
+  }
+  .language-selects {
+    flex-direction: column;
+    gap: 15px;
+  }
 }
