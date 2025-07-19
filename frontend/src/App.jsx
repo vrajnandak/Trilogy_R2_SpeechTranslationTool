@@ -293,6 +293,8 @@ function App() {
   // --- LIFT STATE UP ---
   const [token, setToken] = useState(null);
 
+  console.log("Inside app only right?");
+
   return (
     <div className="App">
       <Router>

@@ -132,8 +132,45 @@ const io = new Server(server, {
 });
 
 // --- AGORA TOKEN LOGIC (Unchanged) ---
-const nocache = (_, resp, next) => { /* ... unchanged ... */ };
-const generateToken = (req, res) => { /* ... unchanged ... */ };
+const nocache = (_, resp, next) => {
+  resp.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  resp.header('Expires', '-1');
+  resp.header('Pragma', 'no-cache');
+  next();
+}
+
+const generateToken = (req, res) => {
+    // --- THIS IS THE NEW, CRASH-PROOFING CODE ---
+    // Check if the credentials are even configured on the server
+    if (!APP_ID || !APP_CERTIFICATE) {
+        console.error('!!! Agora App ID or Certificate is not configured on the server. !!!');
+        return res.status(500).json({ 'error': 'Agora credentials not configured on server.' });
+    }
+    // --- END OF NEW CODE ---
+
+    res.header('Access-Control-Allow-Origin', '*');
+    const channelName = req.query.channelName;
+    if (!channelName) {
+        return res.status(400).json({ 'error': 'channel is required' });
+    }
+    let uid = req.query.uid || 0;
+    let role = RtcRole.PUBLISHER; // Default to publisher
+    let expireTime = 3600;
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    const privilegeExpireTime = currentTime + expireTime;
+    
+    try {
+        const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
+        console.log(`Token successfully generated for channel: ${channelName}, uid: ${uid}`);
+        return res.json({ 'token': token });
+    } catch (error) {
+        console.error("Error generating Agora token:", error);
+        return res.status(500).json({ 'error': 'Failed to generate Agora token on the server.' });
+    }
+}
+// const nocache = (_, resp, next) => { /* ... unchanged ... */ };
+// const generateToken = (req, res) => { /* ... unchanged ... */ };
 app.get('/get_token', nocache, generateToken);
 
 // --- SOCKET.IO CONNECTION LOGIC (Re-added) ---

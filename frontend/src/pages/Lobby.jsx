@@ -13,20 +13,26 @@ const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeer
     e.preventDefault();
     if (!room.trim()) return;
 
+    console.log("after trimming");
+
     setIsLoading(true);
     setError('');
 
+    console.log("setting stuff done");
+
     try {
+    console.log("Getting response now");
       // Fetch token here, BEFORE navigating
       const response = await fetch(`${backendUrl}/get_token?channelName=${room}`);
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
+      console.log("got the response");
       const data = await response.json();
       if (!data.token) {
         throw new Error('Token not received from server');
       }
-      
+      console.log("setting token to data:", data.token);
       setToken(data.token); // Set the token in the parent App component
       navigate(`/room/${room}`); // Navigate only AFTER success
 

@@ -114,6 +114,7 @@ import io from 'socket.io-client';
 
 // --- This component now receives the token as a prop ---
 const VideoCall = ({ myLanguage, peerLanguage, token }) => {
+    console.log("in VideoCall component");
   const { roomCode } = useParams();
   const navigate = useNavigate();
   
@@ -128,8 +129,11 @@ const VideoCall = ({ myLanguage, peerLanguage, token }) => {
     EndCall: () => { navigate('/'); },
   };
 
+  console.log("Going to the !token part");
+
   // If the token is not passed yet, show a loading/error state
   if (!token) {
+    console.log("inside the not taken part");
     return (
       <div className="App-header">
         <h1>Invalid Session</h1>
