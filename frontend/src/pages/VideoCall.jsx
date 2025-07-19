@@ -179,6 +179,9 @@ const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 const socket = io(backendUrl);
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+const agoraClient = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
+
+
 // This is the main component that holds the video call logic.
 function VideoRoom({ uid, channel, token, onLeave, myLanguage, peerLanguage }) {
   const navigate = useNavigate();
@@ -344,9 +347,9 @@ function VideoRoom({ uid, channel, token, onLeave, myLanguage, peerLanguage }) {
 const VideoCall = ({ uid, myLanguage, peerLanguage, token }) => {
   const { roomCode } = useParams();
   const navigate = useNavigate();
-  const agoraClient = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
+  // const agoraClient = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
   // console.log("agoraClient", agoraClient);
-  console.log("In the VideoCall component, uid:", uid);
+  // console.log("In the VideoCall component, uid:", uid);
 
   if (!token) {
     return (
