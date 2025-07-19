@@ -37,7 +37,7 @@ const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
 
 // const translationClient = new TranslationServiceClient();
 // const projectId = 'august-period-466408-m6'; // Your Google Cloud Project ID
-// const location = 'global';
+const location = 'global';
 
 const app = express();
 app.use(cors()); // Use cors middleware for all HTTP routes

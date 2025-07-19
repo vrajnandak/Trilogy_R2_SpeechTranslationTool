@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AgoraUIKit from 'agora-react-uikit';
 import io from 'socket.io-client';
+// import './../App.css';
 
 const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 const socket = io(backendUrl);

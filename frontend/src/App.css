@@ -219,3 +219,62 @@
     gap: 15px;
   }
 }
+
+
+
+
+/* frontend/src/App.css */
+
+/* This is our main container that provides the background and centering */
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--background-dark); /* From index.css */
+  color: var(--text-light); /* From index.css */
+  overflow: hidden; /* Prevent scrollbars on the main app container */
+}
+
+/* --- Lobby Styles --- */
+/* ... (all your existing lobby styles are correct and remain here) ... */
+.lobby-card {
+  background-color: var(--container-dark);
+  padding: 40px 50px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: 550px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+/* ... etc ... */
+
+
+/* --- Video Call Styles --- */
+.call-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+}
+
+.video-container {
+  flex-grow: 1;
+  display: flex;
+  position: relative; 
+}
+
+.translation-sidebar {
+  width: 350px;
+  flex-shrink: 0; 
+  background-color: var(--sidebar-dark);
+  border-left: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+
+
