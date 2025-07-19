@@ -108,13 +108,13 @@ io.on('connection', (socket) => {
                 targetLanguageCode: targetLang,
             };
             
-            console.log("Going to send to the translation client now");
+            // console.log("Going to send to the translation client now");
             const [response] = await translationClient.translateText(request);
-            console.log("The response is as follows:", response);
+            // console.log("The response is as follows:", response);
             const detectedSourceLang = response.translations[0]?.detectedLanguageCode || 'unknown';
-            console.log('Detected source language is:', detectedSourceLang);
+            // console.log('Detected source language is:', detectedSourceLang);
             const translation = response.translations[0]?.translatedText || "[No translation found]";
-            console.log(`Translated: "${translation}"`);
+            // console.log(`Translated: "${translation}"`);
             
             socket.to(room).emit('chat-message', {
                 translatedText: translation,

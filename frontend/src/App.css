@@ -199,6 +199,10 @@
   background-color: var(--danger-red);
 }
 
+.transcribe-btn:hover{
+  cursor: pointer;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .call-container {
@@ -278,3 +282,111 @@
 
 
 
+/* frontend/src/App.css */
+
+/* --- Main App Container --- */
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--background-dark);
+  color: var(--text-light);
+  overflow: hidden;
+  padding: 2rem;
+}
+
+/* --- NEW: Landing Page Styles --- */
+.landing-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  gap: 4rem;
+}
+
+.landing-info {
+  flex: 1;
+  max-width: 500px;
+}
+
+.landing-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.landing-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-bottom: 2.5rem;
+}
+
+.instructions-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.instructions-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.instructions-list li {
+  margin-bottom: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.instructions-list li strong {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.landing-form {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  max-width: 500px;
+}
+
+/* --- Modified Lobby Styles --- */
+.lobby-card {
+  background-color: var(--container-dark);
+  padding: 40px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.lobby-form .form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+/* ... all other .lobby-form, .join-btn, .language-selects styles remain the same ... */
+
+/* --- Video Call & Chat Styles (Unchanged) --- */
+/* ... (all your existing call styles are correct) ... */
+
+/* --- Responsive Design for Landing Page --- */
+@media (max-width: 900px) {
+  .landing-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+  .landing-info {
+    max-width: 100%;
+  }
+  .instructions-list li {
+    text-align: left;
+  }
+}

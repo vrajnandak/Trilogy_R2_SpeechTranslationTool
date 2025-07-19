@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Lobby from './pages/Lobby';
+import LandingPage from './pages/LandingPage'; // Import the new landing page
 import VideoCall from './pages/VideoCall';
 import './App.css';
 
@@ -17,7 +17,8 @@ function App() {
           <Route 
             path="/" 
             element={
-              <Lobby 
+              // The root path now renders the LandingPage component
+              <LandingPage 
                 room={room} 
                 setRoom={setRoom} 
                 myLanguage={myLanguage}

@@ -1,4 +1,3 @@
-// frontend/src/pages/Lobby.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,12 +16,10 @@ const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeer
     setError('');
 
     try {
-      console.log("Fetching a token right now");
       const response = await fetch(`${backendUrl}/get_token?channelName=${room}`);
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
-      console.log("response was fine");
       const data = await response.json();
       if (!data.token) {
         throw new Error('Token not received from server');
@@ -37,54 +34,51 @@ const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeer
     }
   };
 
+  // Note: We have removed the <header> and main titles. This component is now just the form.
   return (
-    <div className="lobby-container">
-      <div className="lobby-card">
-        <h1 className="lobby-title">Lingua Live</h1>
-        <p className="lobby-subtitle">Real-time Video Calls with Live Translation</p>
-        <form onSubmit={handleSubmit} className="lobby-form">
+    <div className="lobby-card">
+      <form onSubmit={handleSubmit} className="lobby-form">
+        <div className="form-group">
+          <label htmlFor="roomName">Room Name</label>
+          <input 
+            id="roomName"
+            type="text" 
+            placeholder="e.g., project-sync" 
+            value={room} 
+            onChange={(e) => setRoom(e.target.value)} 
+            required 
+            disabled={isLoading} 
+          />
+        </div>
+        <div className="language-selects">
           <div className="form-group">
-            <label htmlFor="roomName">Room Name</label>
-            <input 
-              id="roomName"
-              type="text" 
-              placeholder="e.g., project-sync" 
-              value={room} 
-              onChange={(e) => setRoom(e.target.value)} 
-              required 
-              disabled={isLoading} 
-            />
+            <label>I will speak in:</label>
+            <select value={myLanguage} onChange={(e) => setMyLanguage(e.target.value)} disabled={isLoading}>
+              <option value="en-US">English (US)</option>
+              <option value="es-ES">Español</option>
+              <option value="fr-FR">Français</option>
+              <option value="de-DE">Deutsch</option>
+              <option value="hi-IN">हिन्दी (Hindi)</option>
+              <option value="ja-JP">日本語 (Japanese)</option>
+            </select>
           </div>
-          <div className="language-selects">
-            <div className="form-group">
-              <label>I will speak in:</label>
-              <select value={myLanguage} onChange={(e) => setMyLanguage(e.target.value)} disabled={isLoading}>
-                <option value="en-US">English (US)</option>
-                <option value="es-ES">Español</option>
-                <option value="fr-FR">Français</option>
-                <option value="de-DE">Deutsch</option>
-                <option value="hi-IN">हिन्दी (Hindi)</option>
-                <option value="ja-JP">日本語 (Japanese)</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label>Translate for my peer to:</label>
-              <select value={peerLanguage} onChange={(e) => setPeerLanguage(e.target.value)} disabled={isLoading}>
-                <option value="es">Español</option>
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-                <option value="de">Deutsch</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="ja">日本語 (Japanese)</option>
-              </select>
-            </div>
+          <div className="form-group">
+            <label>Translate for my peer to:</label>
+            <select value={peerLanguage} onChange={(e) => setPeerLanguage(e.target.value)} disabled={isLoading}>
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+              <option value="hi">हिन्दी (Hindi)</option>
+              <option value="ja">日本語 (Japanese)</option>
+            </select>
           </div>
-          <button type="submit" className="join-btn" disabled={isLoading}>
-            {isLoading ? 'Joining...' : 'Join Room'}
-          </button>
-          {error && <p className="error-message">{error}</p>}
-        </form>
-      </div>
+        </div>
+        <button type="submit" className="join-btn" disabled={isLoading}>
+          {isLoading ? 'Joining...' : 'Join Room'}
+        </button>
+        {error && <p className="error-message">{error}</p>}
+      </form>
     </div>
   );
 };
