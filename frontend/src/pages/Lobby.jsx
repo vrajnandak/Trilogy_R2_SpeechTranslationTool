@@ -16,7 +16,7 @@ const Lobby = ({ uid, room, setRoom, myLanguage, setMyLanguage, peerLanguage, se
     setError('');
 
     try {
-      const response = await fetch(`${backendUrl}/get_token?channelName=${room}&uid=${uid}]`);
+      const response = await fetch(`${backendUrl}/get_token?channelName=${room}&uid=${uid}`);
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
