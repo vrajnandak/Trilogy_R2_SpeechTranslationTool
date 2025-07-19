@@ -17,10 +17,12 @@ const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeer
     setError('');
 
     try {
+      console.log("Fetching a token right now");
       const response = await fetch(`${backendUrl}/get_token?channelName=${room}`);
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
+      console.log("response was fine");
       const data = await response.json();
       if (!data.token) {
         throw new Error('Token not received from server');

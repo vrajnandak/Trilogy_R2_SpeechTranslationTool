@@ -5,7 +5,7 @@ const { RtcTokenBuilder, RtcRole } = require('agora-token');
 const cors = require('cors');
 // const fs = require('fs');
 
-require('dotenv').config({ path: './Lingua-Live-Server.env' });
+// require('dotenv').config({ path: './Lingua-Live-Server.env' });
 
 let translationClient;
 let projectId;
@@ -20,10 +20,10 @@ if (process.env.GOOGLE_CREDENTIALS_BASE64) {
   console.log('Google Cloud credentials configured successfully.');
 
   const credentials = JSON.parse(decodedKey);
-  console.log("credentials:", credentials);
+  // console.log("credentials:", credentials);
   projectId=credentials.project_id;
   translationClient=new TranslationServiceClient({credentials});
-  console.log(translationClient);
+  // console.log(translationClient);
   // console.log("")
 } else {
   console.error('!!! CRITICAL: GOOGLE_CREDENTIALS_BASE64 env var not set. Translation will fail. !!!');
