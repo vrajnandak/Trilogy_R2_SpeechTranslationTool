@@ -197,7 +197,7 @@ function VideoRoom({ uid, channel, token, onLeave, myLanguage, peerLanguage }) {
   const messagesEndRef = useRef(null);
   
   // Join the channel
-  useJoin({ appid: '727d7f73388c4d24a74e21d3151c87f6', channel, token: token || null});
+  useJoin({ appid: '727d7f73388c4d24a74e21d3151c87f6', channel, token: token || null, uid: uid});
   // Publish the local tracks so others can see and hear you
   usePublish([localMicrophoneTrack, localCameraTrack]);
 
