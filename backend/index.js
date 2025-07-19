@@ -3,9 +3,6 @@ const http = require('http');
 const { Server } = require("socket.io");
 const { RtcTokenBuilder, RtcRole } = require('agora-token');
 const cors = require('cors');
-// const fs = require('fs');
-
-// require('dotenv').config({ path: './Lingua-Live-Server.env' });
 
 let translationClient;
 let projectId;

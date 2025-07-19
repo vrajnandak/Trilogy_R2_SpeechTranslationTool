@@ -5,7 +5,7 @@ import VideoCall from './pages/VideoCall';
 import './App.css';
 
 function App() {
-  const [uid] = useState(Math.floor(Math.random() * 100000));
+  const [uid] = useState(Math.floor(Math.random() * 65534));
 
   const [room, setRoom] = useState('');
   const [myLanguage, setMyLanguage] = useState('en-US');
