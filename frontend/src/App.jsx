@@ -5,6 +5,8 @@ import VideoCall from './pages/VideoCall';
 import './App.css';
 
 function App() {
+  const [uid] = useState(Math.floor(Math.random() * 100000));
+
   const [room, setRoom] = useState('');
   const [myLanguage, setMyLanguage] = useState('en-US');
   const [peerLanguage, setPeerLanguage] = useState('es');
@@ -18,7 +20,8 @@ function App() {
             path="/" 
             element={
               // The root path now renders the LandingPage component
-              <LandingPage 
+              <LandingPage
+                uid = {uid}
                 room={room} 
                 setRoom={setRoom} 
                 myLanguage={myLanguage}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 
-const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeerLanguage, setToken }) => {
+const Lobby = ({ uid, room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeerLanguage, setToken }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,7 +16,7 @@ const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeer
     setError('');
 
     try {
-      const response = await fetch(`${backendUrl}/get_token?channelName=${room}`);
+      const response = await fetch(`${backendUrl}/get_token?channelName=${room}&uid=${uid}`);
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }

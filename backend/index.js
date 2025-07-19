@@ -70,7 +70,15 @@ const generateToken = (req, res) => {
     return res.status(400).json({ 'error': 'channelName is a required parameter.' });
   }
 
-  const uid = 0; // Or assign a unique integer user ID
+  let uid=req.query.uid;
+  if(!uid || dui=='')
+  {
+    return res.status(400).json({'error': 'uid is a required parameter'});
+  }
+
+  uid = parseInt(uid, 10);
+
+  // const uid = 0; // Or assign a unique integer user ID
   const role = RtcRole.PUBLISHER;
   const expireTime = 3600; // Token valid for 1 hour
   const currentTime = Math.floor(Date.now() / 1000);

@@ -180,7 +180,7 @@ const socket = io(backendUrl);
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 // This is the main component that holds the video call logic.
-function VideoRoom({ channel, token, onLeave, myLanguage, peerLanguage }) {
+function VideoRoom({ uid, channel, token, onLeave, myLanguage, peerLanguage }) {
   const navigate = useNavigate();
   // Get local camera and microphone tracks
   const { localMicrophoneTrack } = useLocalMicrophoneTrack();
@@ -197,7 +197,7 @@ function VideoRoom({ channel, token, onLeave, myLanguage, peerLanguage }) {
   const messagesEndRef = useRef(null);
   
   // Join the channel
-  useJoin({ appid: '727d7f73388c4d24a74e21d3151c87f6', channel, token: token || null });
+  useJoin({ appid: '727d7f73388c4d24a74e21d3151c87f6', channel, token: token || null, uid: uid });
   // Publish the local tracks so others can see and hear you
   usePublish([localMicrophoneTrack, localCameraTrack]);
 
@@ -328,7 +328,7 @@ function VideoRoom({ channel, token, onLeave, myLanguage, peerLanguage }) {
 
 // This is the main export component. Its only job is to create the Agora client
 // and wrap the VideoRoom with the AgoraRTCProvider.
-const VideoCall = ({ myLanguage, peerLanguage, token }) => {
+const VideoCall = ({ uid, myLanguage, peerLanguage, token }) => {
   const { roomCode } = useParams();
   const navigate = useNavigate();
   const agoraClient = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
@@ -348,6 +348,7 @@ const VideoCall = ({ myLanguage, peerLanguage, token }) => {
   return (
     <AgoraRTCProvider client={agoraClient}>
       <VideoRoom
+        uid = {uid}
         channel={roomCode}
         token={token}
         myLanguage={myLanguage}
