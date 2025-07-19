@@ -278,7 +278,6 @@
 
 
 
-
 // frontend/src/App.jsx
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -290,10 +289,7 @@ function App() {
   const [room, setRoom] = useState('');
   const [myLanguage, setMyLanguage] = useState('en-US');
   const [peerLanguage, setPeerLanguage] = useState('es');
-  // --- LIFT STATE UP ---
   const [token, setToken] = useState(null);
-
-  console.log("Inside app only right?");
 
   return (
     <div className="App">
@@ -309,7 +305,7 @@ function App() {
                 setMyLanguage={setMyLanguage}
                 peerLanguage={peerLanguage}
                 setPeerLanguage={setPeerLanguage}
-                setToken={setToken} // Pass the setter function
+                setToken={setToken}
               />
             } 
           />
@@ -319,7 +315,7 @@ function App() {
               <VideoCall 
                 myLanguage={myLanguage} 
                 peerLanguage={peerLanguage} 
-                token={token} // Pass the token itself
+                token={token}
               />
             } 
           />

@@ -104,78 +104,80 @@
 
 
 
+
+
+
+
+
+
+
 // backend/index.js
 const express = require('express');
-const http = require('http'); // Required for Socket.IO
-const { Server } = require("socket.io"); // Required for Socket.IO
+const http = require('http');
+const { Server } = require("socket.io");
 const { RtcTokenBuilder, RtcRole } = require('agora-token');
 const cors = require('cors');
 const { Translate } = require('@google-cloud/translate').v2;
 
+// --- Environment Variables ---
 const PORT = process.env.PORT || 4000;
-const APP_ID = process.env.AGORA_APP_ID;
-const APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
+const AGORA_APP_ID = process.env.AGORA_APP_ID;
+const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
+// --- Service Initialization ---
 const translate = new Translate({ key: GOOGLE_API_KEY });
 const app = express();
-app.use(cors());
+app.use(cors()); // Use cors middleware for all HTTP routes
 
-const server = http.createServer(app); // Create an HTTP server
-
-// Attach Socket.IO to the HTTP server
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Allow all origins for simplicity, can be restricted later
+    origin: "*", // Allow all origins for Socket.IO
     methods: ["GET", "POST"]
   }
 });
 
-// --- AGORA TOKEN LOGIC (Unchanged) ---
+// --- Agora Token Generation Endpoint ---
 const nocache = (_, resp, next) => {
   resp.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
   resp.header('Expires', '-1');
   resp.header('Pragma', 'no-cache');
   next();
-}
+};
 
 const generateToken = (req, res) => {
-    // --- THIS IS THE NEW, CRASH-PROOFING CODE ---
-    // Check if the credentials are even configured on the server
-    if (!APP_ID || !APP_CERTIFICATE) {
-        console.error('!!! Agora App ID or Certificate is not configured on the server. !!!');
-        return res.status(500).json({ 'error': 'Agora credentials not configured on server.' });
-    }
-    // --- END OF NEW CODE ---
+  if (!AGORA_APP_ID || !AGORA_APP_CERTIFICATE) {
+    console.error('Agora credentials not configured on the server.');
+    return res.status(500).json({ 'error': 'Agora credentials not configured.' });
+  }
 
-    res.header('Access-Control-Allow-Origin', '*');
-    const channelName = req.query.channelName;
-    if (!channelName) {
-        return res.status(400).json({ 'error': 'channel is required' });
-    }
-    let uid = req.query.uid || 0;
-    let role = RtcRole.PUBLISHER; // Default to publisher
-    let expireTime = 3600;
+  const channelName = req.query.channelName;
+  if (!channelName) {
+    return res.status(400).json({ 'error': 'channelName is a required parameter.' });
+  }
 
-    const currentTime = Math.floor(Date.now() / 1000);
-    const privilegeExpireTime = currentTime + expireTime;
-    
-    try {
-        const token = RtcTokenBuilder.buildTokenWithUid(APP_ID, APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
-        console.log(`Token successfully generated for channel: ${channelName}, uid: ${uid}`);
-        return res.json({ 'token': token });
-    } catch (error) {
-        console.error("Error generating Agora token:", error);
-        return res.status(500).json({ 'error': 'Failed to generate Agora token on the server.' });
-    }
-}
-// const nocache = (_, resp, next) => { /* ... unchanged ... */ };
-// const generateToken = (req, res) => { /* ... unchanged ... */ };
+  const uid = 0; // Or assign a unique integer user ID
+  const role = RtcRole.PUBLISHER;
+  const expireTime = 3600; // Token valid for 1 hour
+  const currentTime = Math.floor(Date.now() / 1000);
+  const privilegeExpireTime = currentTime + expireTime;
+  
+  try {
+    const token = RtcTokenBuilder.buildTokenWithUid(AGORA_APP_ID, AGORA_APP_CERTIFICATE, channelName, uid, role, privilegeExpireTime);
+    console.log(`Token successfully generated for channel: ${channelName}`);
+    return res.json({ 'token': token });
+  } catch (error) {
+    console.error("Error generating Agora token:", error);
+    return res.status(500).json({ 'error': 'Failed to generate Agora token.' });
+  }
+};
+
 app.get('/get_token', nocache, generateToken);
 
-// --- SOCKET.IO CONNECTION LOGIC (Re-added) ---
+// --- Socket.IO Connection for Chat & Translation ---
 io.on('connection', (socket) => {
-    console.log(`A user connected via Socket.IO: ${socket.id}`);
+    console.log(`User connected via Socket.IO: ${socket.id}`);
 
     socket.on('join-chat-room', (roomId) => {
         socket.join(roomId);
@@ -184,22 +186,20 @@ io.on('connection', (socket) => {
 
     socket.on('chat-message', async ({ text, room, targetLang }) => {
         try {
-            console.log(`Received text: "${text}", target language: ${targetLang}`);
+            console.log(`Received: "${text}", Target: ${targetLang}`);
             let [translations] = await translate.translate(text, targetLang);
             const translation = Array.isArray(translations) ? translations[0] : translations;
-            console.log(`Translated text to ${targetLang}: ${translation}`);
+            console.log(`Translated: "${translation}"`);
             
-            // Broadcast the translated message to others in the room
             socket.to(room).emit('chat-message', {
                 translatedText: translation,
                 originalText: text,
                 senderId: socket.id
             });
-
         } catch (error) {
-            console.error('ERROR during translation:', error);
+            console.error('Translation Error:', error);
             socket.to(room).emit('chat-message', {
-                translatedText: `[Translation Error] ${text}`,
+                translatedText: `[Translation Failed] ${text}`,
                 originalText: text,
                 senderId: socket.id
             });
@@ -211,10 +211,7 @@ io.on('connection', (socket) => {
     });
 });
 
-// Use the http server to listen, not the express app
+// --- Server Startup ---
 server.listen(PORT, () => {
-    console.log(`Server (including Token and Socket.IO) running on port ${PORT}`);
-    if (!APP_ID || !APP_CERTIFICATE || !GOOGLE_API_KEY) {
-        console.error('!!! Missing one or more required environment variables (Agora or Google) !!!');
-    }
+    console.log(`Server running on port ${PORT}`);
 });

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com'; // Your Render URL
+const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 
 const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeerLanguage, setToken }) => {
   const navigate = useNavigate();
@@ -13,28 +13,22 @@ const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeer
     e.preventDefault();
     if (!room.trim()) return;
 
-    console.log("after trimming");
-
     setIsLoading(true);
     setError('');
 
-    console.log("setting stuff done");
-
     try {
-    console.log("Getting response now");
-      // Fetch token here, BEFORE navigating
+      // Fetch the Agora token before navigating to the room
       const response = await fetch(`${backendUrl}/get_token?channelName=${room}`);
       if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
-      console.log("got the response");
       const data = await response.json();
       if (!data.token) {
-        throw new Error('Token not received from server');
+        throw new Error('Token was not received from the server.');
       }
-      console.log("setting token to data:", data.token);
+      
       setToken(data.token); // Set the token in the parent App component
-      navigate(`/room/${room}`); // Navigate only AFTER success
+      navigate(`/room/${room}`); // Navigate only after success
 
     } catch (err) {
       console.error("Failed to join room", err);
@@ -48,7 +42,28 @@ const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeer
       <h1>Video & Translation Chat</h1>
       <form onSubmit={handleSubmit} className="join-room-container">
         <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} required disabled={isLoading} />
-        {/* ... language selects are unchanged ... */}
+        <div className="language-selects">
+          <div>
+            <label>I will speak in:</label>
+            <select value={myLanguage} onChange={(e) => setMyLanguage(e.target.value)}>
+              <option value="en-US">English</option>
+              <option value="es-ES">Español</option>
+              <option value="fr-FR">Français</option>
+              <option value="de-DE">Deutsch</option>
+              <option value="hi-IN">हिन्दी</option>
+            </select>
+          </div>
+          <div>
+            <label>Translate to:</label>
+            <select value={peerLanguage} onChange={(e) => setPeerLanguage(e.target.value)}>
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+              <option value="hi">हिन्दी</option>
+            </select>
+          </div>
+        </div>
         <button type="submit" disabled={isLoading}>
           {isLoading ? 'Joining...' : 'Join Room'}
         </button>
