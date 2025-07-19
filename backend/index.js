@@ -71,7 +71,7 @@ const generateToken = (req, res) => {
   }
 
   let uid=req.query.uid;
-  if(!uid || dui=='')
+  if(!uid || uid=='')
   {
     return res.status(400).json({'error': 'uid is a required parameter'});
   }

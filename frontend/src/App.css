@@ -369,7 +369,7 @@
   display: flex;
   gap: 1rem;
   background-color: rgba(24, 24, 24, 0.75);
-  padding: 10px 20px;
+  padding: 10px 15px;
   border-radius: 50px;
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
@@ -393,4 +393,21 @@
   transition: all 0.2s ease;
 }
 
-/* ... (the rest of your CSS file is correct and can remain) ... */
+.control-icon {
+  width: 24px;  /* Set a fixed size for the SVG icon */
+  height: 24px;
+  stroke-width: 2; /* Make the lines a bit thicker */
+}
+
+.control-btn:hover {
+  background-color: #555;
+  transform: translateY(-2px);
+}
+
+.end-call-btn {
+  background-color: var(--danger-red);
+}
+
+.end-call-btn:hover {
+  background-color: #c53030;
+}
