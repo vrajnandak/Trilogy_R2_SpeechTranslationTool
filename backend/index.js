@@ -78,6 +78,11 @@ const generateToken = (req, res) => {
   uid = parseInt(uid, 10);
   console.log("after doing parseInt time printing the uid: ", uid);
 
+  if (Number.isNaN(uid) || uid < 0 || uid > 65535) {
+    console.error(`Invalid UID received: ${uidFromQuery}. Parsed as: ${uid}`);
+    return res.status(400).json({ 'error': 'uid must be a valid integer between 0 and 65535.' });
+  }
+
   // const uid = 0; // Or assign a unique integer user ID
   const role = RtcRole.PUBLISHER;
   const expireTime = 3600; // Token valid for 1 hour

@@ -6,7 +6,7 @@ import './App.css';
 
 function App() {
   const [uid] = useState(Math.floor(Math.random() * 65534));
-
+  console.log("Generated the uid in the App.jsx file itself", uid);
   const [room, setRoom] = useState('');
   const [myLanguage, setMyLanguage] = useState('en-US');
   const [peerLanguage, setPeerLanguage] = useState('es');

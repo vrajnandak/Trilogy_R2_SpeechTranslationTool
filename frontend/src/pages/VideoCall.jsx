@@ -197,6 +197,7 @@ function VideoRoom({ uid, channel, token, onLeave, myLanguage, peerLanguage }) {
   const messagesEndRef = useRef(null);
   
   // Join the channel
+  console.log("Before joining the room, i am printing the uid in the VideoRoom component:", uid);
   useJoin({ appid: '727d7f73388c4d24a74e21d3151c87f6', channel, token: token || null, uid: uid});
   // Publish the local tracks so others can see and hear you
   usePublish([localMicrophoneTrack, localCameraTrack]);
@@ -344,7 +345,8 @@ const VideoCall = ({ uid, myLanguage, peerLanguage, token }) => {
   const { roomCode } = useParams();
   const navigate = useNavigate();
   const agoraClient = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
-  console.log("agoraClient", agoraClient);
+  // console.log("agoraClient", agoraClient);
+  console.log("In the VideoCall component, uid:", uid);
 
   if (!token) {
     return (
