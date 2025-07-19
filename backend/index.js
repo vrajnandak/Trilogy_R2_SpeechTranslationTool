@@ -33,7 +33,8 @@ app.use(cors()); // Use cors middleware for all HTTP routes
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Allow all origins for Socket.IO
+    // origin: "*", // Allow all origins for Socket.IO
+    origin: "https://timely-fox-dcd3d7.netlify.app",
     methods: ["GET", "POST"]
   }
 });
