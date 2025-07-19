@@ -36,6 +36,7 @@ function App() {
             path="/room/:roomCode" 
             element={
               <VideoCall 
+                uid={uid}
                 myLanguage={myLanguage} 
                 peerLanguage={peerLanguage} 
                 token={token}

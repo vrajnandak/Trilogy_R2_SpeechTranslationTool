@@ -73,6 +73,7 @@ const generateToken = (req, res) => {
   let uid=req.query.uid;
   if(!uid || uid=='')
   {
+    console.log("uid is either not defined or null", uid);
     return res.status(400).json({'error': 'uid is a required parameter'});
   }
 
