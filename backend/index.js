@@ -3,16 +3,28 @@ const http = require('http');
 const { Server } = require("socket.io");
 const { RtcTokenBuilder, RtcRole } = require('agora-token');
 const cors = require('cors');
-const fs = require('fs');
+// const fs = require('fs');
 
+require('dotenv').config({ path: './Lingua-Live-Server.env' });
+
+let translationClient;
+let projectId;
 
 const {TranslationServiceClient} = require('@google-cloud/translate');
 if (process.env.GOOGLE_CREDENTIALS_BASE64) {
+  console.log('inside the if statmenet');
   const decodedKey = Buffer.from(process.env.GOOGLE_CREDENTIALS_BASE64, 'base64').toString('ascii');
   const keyFilePath = '/tmp/gcp-creds.json';
-  fs.writeFileSync(keyFilePath, decodedKey);
+  // fs.writeFileSync(keyFilePath, decodedKey);
   process.env.GOOGLE_APPLICATION_CREDENTIALS = keyFilePath;
   console.log('Google Cloud credentials configured successfully.');
+
+  const credentials = JSON.parse(decodedKey);
+  console.log("credentials:", credentials);
+  projectId=credentials.project_id;
+  translationClient=new TranslationServiceClient({credentials});
+  console.log(translationClient);
+  // console.log("")
 } else {
   console.error('!!! CRITICAL: GOOGLE_CREDENTIALS_BASE64 env var not set. Translation will fail. !!!');
 }
@@ -23,9 +35,9 @@ const AGORA_APP_ID = process.env.AGORA_APP_ID;
 const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
 
 
-const translationClient = new TranslationServiceClient();
-const projectId = 'august-period-466408-m6'; // Your Google Cloud Project ID
-const location = 'global';
+// const translationClient = new TranslationServiceClient();
+// const projectId = 'august-period-466408-m6'; // Your Google Cloud Project ID
+// const location = 'global';
 
 const app = express();
 app.use(cors()); // Use cors middleware for all HTTP routes
@@ -96,6 +108,7 @@ io.on('connection', (socket) => {
                 targetLanguageCode: targetLang,
             };
             
+            console.log("Going to send to the translation client now");
             const [response] = await translationClient.translateText(request);
             console.log("The response is as follows:", response);
             const detectedSourceLang = response.translations[0]?.detectedLanguageCode || 'unknown';
