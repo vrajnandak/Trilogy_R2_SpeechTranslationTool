@@ -68,6 +68,7 @@ const generateToken = (req, res) => {
   }
 
   let uid=req.query.uid;
+  console.log("first time printing the uid: ", uid);
   if(!uid || uid=='')
   {
     console.log("uid is either not defined or null", uid);
@@ -75,6 +76,7 @@ const generateToken = (req, res) => {
   }
 
   uid = parseInt(uid, 10);
+  console.log("after doing parseInt time printing the uid: ", uid);
 
   // const uid = 0; // Or assign a unique integer user ID
   const role = RtcRole.PUBLISHER;
