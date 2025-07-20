@@ -411,3 +411,70 @@
 .end-call-btn:hover {
   background-color: #c53030;
 }
+
+
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 12px; /* Adds space between messages */
+}
+
+.message-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+}
+
+.message-bubble {
+  padding: 10px 15px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.sender-name {
+  font-size: 0.8em;
+  color: #a0a0b0;
+  margin-bottom: 4px;
+  margin-left: 5px;
+}
+
+/* My Messages (Sent by me) */
+.my-message-wrapper {
+  align-self: flex-end; /* Aligns the entire wrapper to the right */
+  align-items: flex-end; /* Aligns bubble to the right within the wrapper */
+}
+
+.my-message-wrapper .message-bubble {
+  background-color: #007bff; /* A nice blue for my messages */
+  color: white;
+  border-bottom-right-radius: 5px; /* "Tail" effect */
+}
+
+
+/* Peer Messages (Received from others) */
+.peer-message-wrapper {
+  align-self: flex-start; /* Aligns the entire wrapper to the left */
+  align-items: flex-start; /* Aligns bubble to the left within the wrapper */
+}
+
+.peer-message-wrapper .message-bubble {
+  background-color: #3a3a3c; /* A dark grey for peer messages */
+  color: #f1f1f1;
+  border-bottom-left-radius: 5px; /* "Tail" effect */
+}
+
+.original-text {
+  font-size: 0.8em;
+  color: #b0b0b0;
+  border-top: 1px solid #555;
+  padding-top: 5px;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.transcribe-btn.active {
+  background-color: #dc3545; /* Red when active */
+  color: white;
+}

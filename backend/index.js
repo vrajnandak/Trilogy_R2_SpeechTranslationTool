@@ -188,12 +188,12 @@ if (process.env.GOOGLE_CREDENTIALS_BASE64) {
   const keyFilePath = '/tmp/gcp-creds.json';
   // fs.writeFileSync(keyFilePath, decodedKey);
   process.env.GOOGLE_APPLICATION_CREDENTIALS = keyFilePath;
-  console.log('Google Cloud credentials configured successfully.');
-
+  
   const credentials = JSON.parse(decodedKey);
   // console.log("credentials:", credentials);
   projectId=credentials.project_id;
   translationClient=new TranslationServiceClient({credentials});
+  console.log('Google Cloud credentials configured successfully.');
   // console.log(translationClient);
   // console.log("")
 } else {
@@ -237,6 +237,7 @@ const generateToken = (req, res) => {
   }
 
   const channelName = req.query.channelName;
+  // const uid = req.query.id;
   if (!channelName) {
     return res.status(400).json({ 'error': 'channelName is a required parameter.' });
   }
@@ -268,9 +269,9 @@ io.on('connection', (socket) => {
         console.log(`User ${socket.id} joined chat room: ${roomId}`);
     });
 
-    socket.on('chat-message', async ({ text, room, targetLang }) => {
+    socket.on('chat-message', async ({ text, room, targetLang, userName, sourceLang }) => {
         try {
-            console.log(`Received: "${text}", Target: ${targetLang}`);
+            console.log(`[${room}] ${userName}: "${text}" (Source: ${sourceLang}, Target: ${targetLang})`);
 
             const request = {
                 parent: `projects/${projectId}/locations/${location}`,
@@ -278,6 +279,10 @@ io.on('connection', (socket) => {
                 mimeType: 'text/plain',
                 targetLanguageCode: targetLang,
             };
+
+            if(sourceLang && sourceLang!=='auto') {
+              request.sourceLanguageCode = sourceLang.split('-')[0];
+            }
             
             // console.log("Going to send to the translation client now");
             const [response] = await translationClient.translateText(request);
@@ -290,7 +295,8 @@ io.on('connection', (socket) => {
             socket.to(room).emit('chat-message', {
                 translatedText: translation,
                 originalText: text,
-                senderId: socket.id
+                // senderId: socket.id
+                senderName: userName
             });
 
         } catch (error) {
@@ -298,7 +304,8 @@ io.on('connection', (socket) => {
             socket.to(room).emit('chat-message', {
                 translatedText: `[Translation Failed] ${text}`,
                 originalText: text,
-                senderId: socket.id
+                // senderId: socket.id,
+                senderName: userName || "Unknown"
             });
         }
     });

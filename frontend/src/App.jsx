@@ -71,6 +71,7 @@ import './App.css';
 
 function App() {
   const [room, setRoom] = useState('');
+  const [userName, setUserName] = useState('');
   const [myLanguage, setMyLanguage] = useState('en-US');
   const [peerLanguage, setPeerLanguage] = useState('es');
   const [token, setToken] = useState(null);
@@ -85,7 +86,9 @@ function App() {
               // The root path now renders the LandingPage component
               <LandingPage 
                 room={room} 
-                setRoom={setRoom} 
+                setRoom={setRoom}
+                userName={userName}
+                setUserName={setUserName}
                 myLanguage={myLanguage}
                 setMyLanguage={setMyLanguage}
                 peerLanguage={peerLanguage}
@@ -98,8 +101,9 @@ function App() {
             path="/room/:roomCode" 
             element={
               <VideoCall 
+                userName={userName}
                 myLanguage={myLanguage} 
-                peerLanguage={peerLanguage} 
+                peerLanguage={peerLanguage}
                 token={token}
               />
             } 

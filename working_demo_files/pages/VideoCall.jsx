@@ -175,7 +175,7 @@ const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 const socket = io(backendUrl);
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const VideoCall = ({ userName, myLanguage, peerLanguage, token }) => {
+const VideoCall = ({ myLanguage, peerLanguage, token }) => {
   const { roomCode } = useParams();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
@@ -194,9 +194,8 @@ const VideoCall = ({ userName, myLanguage, peerLanguage, token }) => {
   useEffect(() => {
     if (token) {
       socket.emit('join-chat-room', roomCode);
-
       socket.on('chat-message', (message) => {
-        const newMessage = { text: message.translatedText, isMine: false, original: message.originalText, senderName: message.senderName };
+        const newMessage = { text: message.translatedText, isMine: false, original: message.originalText };
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       });
       return () => { socket.off('chat-message'); };
@@ -214,16 +213,14 @@ const VideoCall = ({ userName, myLanguage, peerLanguage, token }) => {
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = false;
-      if(myLanguage!=="auto") {
-        recognition.lang = myLanguage;
-      }
+      recognition.lang = myLanguage;
 
       recognition.onresult = (event) => {
         const text = event.results[event.results.length - 1][0].transcript.trim();
         if (text) {
-          const newMessage = { text: text, isMine: true, senderName: 'You' };
+          const newMessage = { text: text, isMine: true };
           setMessages((prev) => [...prev, newMessage]);
-          socket.emit('chat-message', { text, room: roomCode, targetLang: peerLanguage, userName, sourceLang: myLanguage });
+          socket.emit('chat-message', { text, room: roomCode, targetLang: peerLanguage });
         }
       };
       

@@ -112,7 +112,7 @@ import { useNavigate } from 'react-router-dom';
 
 const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 
-const Lobby = ({ room, setRoom, userName, setUserName, myLanguage, setMyLanguage, peerLanguage, setPeerLanguage, setToken }) => {
+const Lobby = ({ room, setRoom, myLanguage, setMyLanguage, peerLanguage, setPeerLanguage, setToken }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -148,19 +148,6 @@ const Lobby = ({ room, setRoom, userName, setUserName, myLanguage, setMyLanguage
     <div className="lobby-card">
       <form onSubmit={handleSubmit} className="lobby-form">
         <div className="form-group">
-          <label htmlFor="userName">Your Name</label>
-          <input 
-            id="userName"
-            type="text" 
-            placeholder="e.g., Jane Doe" 
-            value={userName} 
-            onChange={(e) => setUserName(e.target.value)} 
-            required 
-            disabled={isLoading} 
-          />
-        </div>
-
-        <div className="form-group">
           <label htmlFor="roomName">Room Name</label>
           <input 
             id="roomName"
@@ -176,7 +163,6 @@ const Lobby = ({ room, setRoom, userName, setUserName, myLanguage, setMyLanguage
           <div className="form-group">
             <label>I will speak in:</label>
             <select value={myLanguage} onChange={(e) => setMyLanguage(e.target.value)} disabled={isLoading}>
-              <option value="auto">Auto-detect</option>
               <option value="en-US">English (US)</option>
               <option value="es-ES">Español</option>
               <option value="fr-FR">Français</option>
