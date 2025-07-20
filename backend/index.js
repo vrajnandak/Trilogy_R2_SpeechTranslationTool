@@ -222,6 +222,8 @@ const io = new Server(server, {
   }
 });
 
+const userPreferences = {};   //key: socket.id, value: {targetLang, userName}
+
 // --- Agora Token Generation Endpoint ---
 const nocache = (_, resp, next) => {
   resp.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -264,41 +266,57 @@ app.get('/get_token', nocache, generateToken);
 io.on('connection', (socket) => {
     console.log(`User connected via Socket.IO: ${socket.id}`);
 
-    socket.on('join-chat-room', (roomId) => {
+    socket.on('join-chat-room', (roomId, userName, targetLang) => {
         socket.join(roomId);
+        userPreferences[socket.id] = { userName, targetLang };
         console.log(`User ${socket.id} joined chat room: ${roomId}`);
     });
 
-    socket.on('chat-message', async ({ text, room, targetLang, userName, sourceLang }) => {
+    socket.on('chat-message', async ({ text, room, sourceLang }) => {
         try {
-            console.log(`[${room}] ${userName}: "${text}" (Source: ${sourceLang}, Target: ${targetLang})`);
+            const sender = userPreferences[socket.id];
+            if(!sender) return;
 
-            const request = {
-                parent: `projects/${projectId}/locations/${location}`,
-                contents: [text],
-                mimeType: 'text/plain',
-                targetLanguageCode: targetLang,
-            };
+            console.log(`Message from ${sender.userName}: "${text}"`);
 
-            if(sourceLang && sourceLang!=='auto') {
-              request.sourceLanguageCode = sourceLang.split('-')[0];
-            }
-            
-            // console.log("Going to send to the translation client now");
-            const [response] = await translationClient.translateText(request);
-            // console.log("The response is as follows:", response);
-            const detectedSourceLang = response.translations[0]?.detectedLanguageCode || 'unknown';
-            // console.log('Detected source language is:', detectedSourceLang);
-            const translation = response.translations[0]?.translatedText || "[No translation found]";
-            // console.log(`Translated: "${translation}"`);
-            
-            socket.to(room).emit('chat-message', {
-                translatedText: translation,
+            const clientsInRoom = await io.in(room).fetchSockets();
+            for(const clientSocket of clientsInRoom)
+            {
+              if(clientSocket.id===socket.id) continue;
+
+              const receiver = userPreferences[clientSocket.id];
+              if(!receiver) continue;
+
+              let translatedText = text;
+              const receiverTargetLang = receiver.targetLang;
+              const senderSourceLang = sourceLang.split('-')[0];
+
+              if (receiverTargetLang !== senderSourceLang) {
+                try {
+                  const request = {
+                        parent: `projects/${projectId}/locations/global`,
+                        contents: [text],
+                        mimeType: 'text/plain',
+                        targetLanguageCode: receiverTargetLang,
+                    };
+                  if (sourceLang && sourceLang !== 'auto') {
+                      request.sourceLanguageCode = senderSourceLang;
+                  }
+                  
+                  const [response] = await translationClient.translateText(request);
+                  translatedText = response.translations[0]?.translatedText || text;
+                } catch (error) {
+                    console.error(`Translation failed for ${clientSocket.id}:`, error);
+                    translatedText = `[Translation Error] ${text}`;
+                }
+              }
+
+              io.to(clientSocket.id).emit('chat-message', {
+                translatedText: translatedText,
                 originalText: text,
-                // senderId: socket.id
-                senderName: userName
-            });
-
+                senderName: sender.userName,
+              });
+            }
         } catch (error) {
             console.error('ERROR during v3 translation:', error);
             socket.to(room).emit('chat-message', {

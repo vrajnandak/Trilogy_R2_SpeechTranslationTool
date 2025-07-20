@@ -112,7 +112,7 @@ import { useNavigate } from 'react-router-dom';
 
 const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 
-const Lobby = ({ room, setRoom, userName, setUserName, myLanguage, setMyLanguage, peerLanguage, setPeerLanguage, setToken }) => {
+const Lobby = ({ room, setRoom, userName, setUserName, myLanguage, setMyLanguage, translationLanguage, setTranslationLanguage, setToken }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -186,8 +186,8 @@ const Lobby = ({ room, setRoom, userName, setUserName, myLanguage, setMyLanguage
             </select>
           </div>
           <div className="form-group">
-            <label>Translate for my peer to:</label>
-            <select value={peerLanguage} onChange={(e) => setPeerLanguage(e.target.value)} disabled={isLoading}>
+            <label>Translate peer messages to:</label>
+            <select value={translationLanguage} onChange={(e) => setTranslationLanguage(e.target.value)} disabled={isLoading}>
               <option value="es">Español</option>
               <option value="en">English</option>
               <option value="fr">Français</option>

@@ -169,13 +169,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AgoraUIKit from 'agora-react-uikit';
 import io from 'socket.io-client';
-// import './../App.css';
 
 const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 const socket = io(backendUrl);
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const VideoCall = ({ userName, myLanguage, peerLanguage, token }) => {
+const VideoCall = ({ userName, myLanguage, translationLanguage, token }) => {
   const { roomCode } = useParams();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
@@ -193,7 +192,11 @@ const VideoCall = ({ userName, myLanguage, peerLanguage, token }) => {
   // Effect to manage Socket.IO connection for chat
   useEffect(() => {
     if (token) {
-      socket.emit('join-chat-room', roomCode);
+      socket.emit('join-chat-room', {
+        roomId: roomCode,
+        userName: userName,
+        targetLang: translationLanguage
+      });
 
       socket.on('chat-message', (message) => {
         const newMessage = { text: message.translatedText, isMine: false, original: message.originalText, senderName: message.senderName };
@@ -201,7 +204,7 @@ const VideoCall = ({ userName, myLanguage, peerLanguage, token }) => {
       });
       return () => { socket.off('chat-message'); };
     }
-  }, [roomCode, token]);
+  }, [roomCode, token, userName, translationLanguage]);
 
   const handleToggleTranscription = () => {
     if (!SpeechRecognition) {
@@ -223,7 +226,13 @@ const VideoCall = ({ userName, myLanguage, peerLanguage, token }) => {
         if (text) {
           const newMessage = { text: text, isMine: true, senderName: 'You' };
           setMessages((prev) => [...prev, newMessage]);
-          socket.emit('chat-message', { text, room: roomCode, targetLang: peerLanguage, userName, sourceLang: myLanguage });
+          // socket.emit('chat-message', { text, room: roomCode, targetLang: peerLanguage, userName, sourceLang: myLanguage });
+          socket.emit('chat-message', {
+            text,
+            room: roomCode,
+            // userName: userName,
+            sourceLang: myLanguage
+          })
         }
       };
       

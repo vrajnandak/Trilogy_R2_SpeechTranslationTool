@@ -73,7 +73,7 @@ function App() {
   const [room, setRoom] = useState('');
   const [userName, setUserName] = useState('');
   const [myLanguage, setMyLanguage] = useState('en-US');
-  const [peerLanguage, setPeerLanguage] = useState('es');
+  const [translationLanguage, setTranslationLanguage] = useState('es');
   const [token, setToken] = useState(null);
 
   return (
@@ -91,8 +91,8 @@ function App() {
                 setUserName={setUserName}
                 myLanguage={myLanguage}
                 setMyLanguage={setMyLanguage}
-                peerLanguage={peerLanguage}
-                setPeerLanguage={setPeerLanguage}
+                translationLanguage={translationLanguage}
+                setTranslationLanguage={setTranslationLanguage}
                 setToken={setToken}
               />
             } 
@@ -103,7 +103,7 @@ function App() {
               <VideoCall 
                 userName={userName}
                 myLanguage={myLanguage} 
-                peerLanguage={peerLanguage}
+                translationLanguage={translationLanguage}
                 token={token}
               />
             } 
