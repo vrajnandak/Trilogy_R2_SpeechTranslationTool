@@ -266,9 +266,14 @@ app.get('/get_token', nocache, generateToken);
 io.on('connection', (socket) => {
     console.log(`User connected via Socket.IO: ${socket.id}`);
 
-    socket.on('join-chat-room', (roomId, userName, targetLang) => {
+    socket.on('join-chat-room', ({roomId, userName, targetLang}) => {
+        if (!roomId || !userName || !targetLang) {
+          console.error(`[join-chat-room] Invalid data received from ${socket.id}`);
+          return;
+        }
         socket.join(roomId);
         userPreferences[socket.id] = { userName, targetLang };
+        console.log("userPreferences:", userPreferences[socket.id])
         console.log(`User ${socket.id} joined chat room: ${roomId}`);
     });
 
