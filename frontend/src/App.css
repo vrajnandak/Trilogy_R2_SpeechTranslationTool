@@ -478,3 +478,16 @@
   background-color: #dc3545; /* Red when active */
   color: white;
 }
+
+.attribution-footer {
+  margin-top: 2.5rem; /* Add some space above the footer */
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color); /* A subtle separator line */
+  text-align: center; /* Center the text */
+}
+
+.attribution-footer p {
+  font-size: 0.9rem;
+  color: var(--text-muted); /* Use the muted text color for a subtle look */
+  font-style: italic;
+}
