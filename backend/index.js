@@ -27,7 +27,7 @@ try {
 }
 
 // --- Service Initialization ---
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT;
 const AGORA_APP_ID = process.env.AGORA_APP_ID;
 const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
 const frontendURL = process.env.FRONTEND_URL;

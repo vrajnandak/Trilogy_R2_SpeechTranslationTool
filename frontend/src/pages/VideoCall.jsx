@@ -55,6 +55,7 @@ function VideoRoom({ uid, appID, channel, token, onLeave, myLanguage, translatio
 
   useEffect(() => {
     if (localMicrophoneTrack) {
+      
       const startStreaming = async () => {
         audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
         await audioContextRef.current.resume();
