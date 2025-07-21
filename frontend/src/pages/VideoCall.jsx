@@ -15,6 +15,7 @@ import {
 import io from 'socket.io-client';
 
 const backendUrl = import.meta.env.VITE_RENDER_URL;
+console.log("backendURL: ", backendUrl);
 const socket = io(backendUrl);
 const agoraClient = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
 
@@ -55,8 +56,18 @@ function VideoRoom({ uid, appID, channel, token, onLeave, myLanguage, translatio
 
   useEffect(() => {
     if (localMicrophoneTrack) {
-      
+
       const startStreaming = async () => {
+        if(!micOn || !localMicrophoneTrack) {
+          if (processorRef.current) processorRef.current.disconnect();
+          if (sourceNodeRef.current) sourceNodeRef.current.disconnect();
+          if (audioContextRef.current && audioContextRef.current.state === 'running') {
+            audioContextRef.current.close();
+          }
+          socket.emit('end-stream');
+          return;
+        }
+        console.log("[Audio Stream] Mic is ON. Setting up pipeline...");
         audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
         await audioContextRef.current.resume();
         const mediaStream = new MediaStream([localMicrophoneTrack.getMediaStreamTrack()]);
@@ -79,7 +90,10 @@ function VideoRoom({ uid, appID, channel, token, onLeave, myLanguage, translatio
       return () => {
         if (processorRef.current) processorRef.current.disconnect();
         if (sourceNodeRef.current) sourceNodeRef.current.disconnect();
-        if (audioContextRef.current) audioContextRef.current.close();
+        if (audioContextRef.current && audioContextRef.current.state === 'running') {
+        audioContextRef.current.close();
+      }
+        // if (audioContextRef.current) audioContextRef.current.close();
         socket.emit('end-stream');
       };
     }

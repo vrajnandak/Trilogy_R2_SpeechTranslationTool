@@ -8,7 +8,7 @@ const fs = require('fs');
 const { SpeechClient } = require('@google-cloud/speech');
 const { TranslationServiceClient } = require('@google-cloud/translate');
 require('dotenv').config({ path: '.env.local' });
-// --- Service Account Authentication ---
+
 let speechClient, translationClient, projectId;
 try {
   console.log("Attempting to configure Google Cloud credentials...");
