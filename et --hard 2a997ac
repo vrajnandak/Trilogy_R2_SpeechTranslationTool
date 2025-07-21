@@ -1,0 +1,46 @@
+[33m2a997ac[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Added google speech-to-text API. auto-detect is currently stateful
+[33me8df161[m fix: destructing error
+[33mbf80249[m Translation lang specific to user
+[33ma6465f9[m Username, auto detection and translation added
+[33ma3acb6f[m orig working
+[33m58701a4[m checking prev code
+[33m3e6a035[m global creation of agoraClient
+[33m486965d[m extra ']' token in URL
+[33m309928e[m debug statements
+[33me2ecea9[m adding uid back to useJoin
+[33m8c97d46[m minor changes, uid related
+[33m50c0c04[m more minor changes. video still not visible after uid added
+[33m951697b[m fix: uid not passed properly
+[33ma94d479[m fix: var name fixed, additional styling
+[33m9fde88b[m fix: added user id
+[33m761ff8b[m feat: More than 2 users vide and audio shared
+[33m5d5470e[m refactor: VideoCall UI
+[33m39f37f7[m refactor: Responsive UI added.
+[33me7b4858[m feat: Added landing page.
+[33mb355a85[m some more changes
+[33mbf72cab[m refactor some code
+[33mc489e91[m fix: added google auth credentials
+[33m95ceacf[m correct origin for socket speicified
+[33m5e46863[m using cloud translation API
+[33m1004c70[m refactored code
+[33m8ffaad3[m fix: agora generateToken
+[33mc16e30c[m refactor: token loaded before navigation
+[33mab94488[m refactor: implement React Router for navigation
+[33m60f4fe4[m feat: integrate Agora video with SocketIO translation chat
+[33m094b631[m fix(build): configure npm to handle peer dependency conflicts on deploy
+[33mae7e571[m feat: integrate Agora SDK
+[33m2519222[m refactor: some code, modified to use env variables
+[33m7b488d9[m fix: added projectId, location
+[33m6a7b26b[m refactor: update to use google translate v3 API
+[33m9d970ed[m feat: implement real-time translation with Google API key
+[33medf26f8[m feat: implement real-time speech-to-text chat
+[33m6245cee[m Used turns instead of turn in ICE servers.
+[33mb51c400[m More minor modifications
+[33m76ea662[m fix: some minor modifications
+[33mabeeee4[m fix: add TURN server to handle restrictive networks
+[33mb5a1a90[m fix: switch to Twilio STUN server for better reliability
+[33m98a39dd[m feat: add robust ICE servers and connection state logging
+[33m7138b52[m fix(cors): Remove trailing slash from allowed origin URL
+[33m2a43742[m fix: add production CORS and TURN server for robust connectivity
+[33m8bf2359[m updated backend URL in App.jsx to deploy.
+[33m3faee76[m Basic web sockets used.

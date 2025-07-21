@@ -30,11 +30,12 @@ try {
 const PORT = process.env.PORT || 4000;
 const AGORA_APP_ID = process.env.AGORA_APP_ID;
 const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
+const frontendURL = process.env.FRONTEND_URL;
 
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*", methods: ["GET", "POST"] } });
+const io = new Server(server, { cors: { origin: frontendURL, methods: ["GET", "POST"] } });
 
 // --- AGORA TOKEN LOGIC ---
 const nocache = (_, resp, next) => {

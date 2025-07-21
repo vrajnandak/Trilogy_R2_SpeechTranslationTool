@@ -14,7 +14,6 @@ import {
 } from "agora-rtc-react";
 import io from 'socket.io-client';
 
-// const backendUrl = 'https://trilogy-r2-speechtranslationtool.onrender.com';
 const backendUrl = import.meta.env.VITE_RENDER_URL;
 const socket = io(backendUrl);
 const agoraClient = AgoraRTC.createClient({ codec: "vp8", mode: "rtc" });
